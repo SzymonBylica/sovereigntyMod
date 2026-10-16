@@ -319,7 +319,9 @@ namespace SovereigntyTK.UI
             List<GameText> IncomeTip = ProvinceIncomeTooltip.BuildTooltip(Province);
             EconomyText2.SetTooltip(IncomeTip);
 
-            RevoltText.SetTextData(GameText.CreateLocalised("REVOLT_CHANCE", Province.RevoltChance.GetValue()));
+            int RevoltNow = Province.RevoltChance.GetValue();
+            int RevoltBase = ProvinceRevoltDisplay.GetChanceWithoutArmy(Province);
+            RevoltText.SetTextData(GameText.CreateLocalised("REVOLT_CHANCE_BASE", RevoltNow, RevoltBase));
             RevoltText.SetTooltip(Province.RevoltChance.GetBreakdown());
 
             IncomeText.SetTextData(GameText.CreateLocalised("PROVCARD_INCOME", Income, Province.BaseIncome.GetValue()));

@@ -53,6 +53,7 @@ namespace SovereigntyTK.UI
             GameSystem.RegisterEvent(HandleCloseRequest, "CloseTicker");
             GameSystem.RegisterEvent(GameSystem_OnScriptEvent, "TickerMessage");
             GameSystem.OnViewportChanged += GameSystem_OnViewportChanged;
+            GameSystem.CurrentGame.OnPlayerTurnStarted += HandlePlayerTurnStarted;
 
             Ticker = GameForm.GetControlByName<ControlText>("TickerText");
 
@@ -141,6 +142,22 @@ namespace SovereigntyTK.UI
             GameSystem.UnregisterEvent(HandleCloseRequest, "CloseTicker");
             GameSystem.UnregisterEvent(GameSystem_OnScriptEvent, "TickerMessage");
             GameSystem.OnViewportChanged -= GameSystem_OnViewportChanged;
+            if (GameSystem.CurrentGame != null)
+            {
+                GameSystem.CurrentGame.OnPlayerTurnStarted -= HandlePlayerTurnStarted;
+            }
+        }
+
+        void HandlePlayerTurnStarted(WorkingRealm Realm)
+        {
+            if (Realm == null || Realm != GameSystem.CurrentGame.PlayerRealm) return;
+
+            // Match TopPanel / save detail: displayed turn is TurnNumber + 1.
+            int Turn = GameSystem.CurrentGame.TurnController.TurnNumber + 1;
+            GameSystem.FireEvent("TickerMessage", new TickerMessage(
+                GameText.CreateFromLiteral("------------------------"), TickerMessageType.Default, 1));
+            GameSystem.FireEvent("TickerMessage", new TickerMessage(
+                GameText.CreateLocalised("TICKER_TURN_START", Turn), TickerMessageType.Default, 1));
         }
 
         public void TickerToggleClick(UIControl Sender)
