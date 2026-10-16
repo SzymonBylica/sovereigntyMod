@@ -4030,6 +4030,7 @@
     <Row textid="MSG_RANGEIMMUNE_TEXT" english="This unit is immune to all ranged attacks, and can only be attacked in melee" german="Diese Einheit ist immun gegen all Fernkämpfe und kann nur im Nahkampf angegriffen werden" />
     <Row textid="REVOLT_CHANCE" english="Revolt Chance: {0}%" german="Revolte Möglichkeit: {0}%" />
     <Row textid="REVOLT_CHANCE_BASE" english="Revolt Chance: {0}% (base {1}%)" german="Revolte Möglichkeit: {0}% (Basis {1}%)" />
+    <Row textid="REVOLT_CHANCE_CAPITAL" english="Revolt Chance: {0}% (capital)" german="Revolte Möglichkeit: {0}% (Hauptstadt)" />
     <Row textid="TICKER_TURN_START" english="Turn {0} starts" german="Zug {0} beginnt" />
     <Row textid="REVOLT_HEADER" english="Rebellion!" german="Rebellion!" />
     <Row textid="REVOLT_TEXT" english="Rebels have risen up in the province of [text1], unhappy with your rule, they intend to take the province by force." german="In der Provinz [Text1]  ist einAufstand von Rebellen, die in ihrem Unmut über Euer Herrschaftssystem  vorhaben, die Provinz mit Gewalt zu übernehmen." />
