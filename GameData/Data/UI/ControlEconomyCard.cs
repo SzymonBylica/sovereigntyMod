@@ -449,14 +449,11 @@ namespace SovereigntyTK.UI
                 ResistText.Visible = false;
             }
 
-            int Income = Province.Game.EconomyController.GetProvinceIncome(Province, Province.OwnerRealm.CapitolProvince, 1f);
             EconomyText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", Province.CurrentEconomy));
 
-            GameText Text = GameText.CreateLocalised("TT_BUILDING_ECON");
-            Text.AddChildText(GameText.CreateLocalised("FORMAT_PROVINCEINCOME", Income, Province.BaseIncome.GetValue()));
-
-            EconomyIcon.SetTooltip(Text);
-            EconomyBG.SetTooltip(Text);
+            List<GameText> IncomeTip = ProvinceIncomeTooltip.BuildTooltip(Province);
+            EconomyIcon.SetTooltip(IncomeTip);
+            EconomyBG.SetTooltip(IncomeTip);
 
             int i = 0;
             foreach (BuildingEffect Building in Province.Buildings)

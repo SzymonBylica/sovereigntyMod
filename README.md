@@ -5,6 +5,8 @@ Compiled patch can be downloaded from releases tab or you can compile library fr
 
 Original decompiled game library code source is in "DecompiledSource" folder.
 
+Game Data files changed by this fork (UI scripts, XML, text and images) are in the "GameData" folder, which mirrors the game folder. Copy its contents into the game folder, overwriting existing files.
+
 ====================================================
 
 Bug Fixes
@@ -42,4 +44,23 @@ Battles and AI
 5. Armies will retreat from autobattle if many units have low morale and fail their morale checks.
 
 6. Commanders have names now. Commander cards show the number of battles won.
+
+
+Interface
+
+1. The province hover card shows the province's buildings and free building slots, and has fixed Revolt, Income, Research and Terrain lines above the description.
+
+2. Income and Research have breakdown tooltips: economy level, buildings, spells and distance to the capital for income, and the base value plus each building or spell for research.
+
+3. Income breakdowns show how far the province is from the capital, e.g. "Distance to Capitol (4): -158", using the same calculation as the actual income.
+
+4. The message log no longer lists treaties between AI realms. Battle reports are shown in white, other messages in gold.
+
+5. The plague map button has its own icon, minimap tab and tooltip.
+
+6. Unit icons in the army panel show promotion medals and a badge for Garrison units.
+
+7. Tactical battle tiles always show health and morale bars, not only when damaged.
+
+8. Fixed the message log showing a stretched image after loading a game, and a crash when returning to the main menu.
 

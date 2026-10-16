@@ -22,7 +22,9 @@ namespace SovereigntyTK.UI
         ControlImage HealthFG;
         ControlImage MoraleFG;
         ControlImage AttritionImage;
+        ControlImage GarrisonImage;
         ControlText UnknownText;
+        List<ControlImage> MedalImages;
 
         public WorkingUnit Unit;
 
@@ -72,6 +74,25 @@ namespace SovereigntyTK.UI
             AttritionImage.Visible = false;
             AddChild(AttritionImage);
 
+            GarrisonImage = new ControlImage(Game);
+            GarrisonImage.MouseInputType = MouseInputTypes.None;
+            GarrisonImage.SetAnchor(AnchorPoints.TopLeft);
+            GarrisonImage.SetImageFile("Data\\Images\\HUD\\Info\\garrison_icon.png");
+            GarrisonImage.Visible = false;
+            AddChild(GarrisonImage);
+
+            MedalImages = new List<ControlImage>();
+            for (int i = 0; i < 4; i++)
+            {
+                ControlImage Medal = new ControlImage(Game);
+                Medal.MouseInputType = MouseInputTypes.None;
+                Medal.SetAnchor(AnchorPoints.TopLeft);
+                Medal.SetImageFile("Data\\Images\\HUD\\medal.png");
+                Medal.Visible = false;
+                AddChild(Medal);
+                MedalImages.Add(Medal);
+            }
+
             UnknownText = new ControlText(Game);
             UnknownText.MouseInputType = MouseInputTypes.None;
             UnknownText.FontName = "Trebuchet MS";
@@ -94,9 +115,31 @@ namespace SovereigntyTK.UI
 
             MoraleBG.SetBounds(0, Sprite.Bounds.Height * 0.1f, Sprite.Bounds.Width, Sprite.Bounds.Height * 0.1f, UIUnits.PixelScaled);
             MoraleFG.SetBounds(0, Sprite.Bounds.Height * 0.1f, Sprite.Bounds.Width, Sprite.Bounds.Height * 0.1f, UIUnits.PixelScaled);
-            AttritionImage.SetBounds(Sprite.Bounds.Width * 0.72f, 0, Sprite.Bounds.Width * 0.28f, Sprite.Bounds.Height * 0.28f, UIUnits.PixelScaled);
+            PositionBadges();
+
+            // Row along the bottom-right, just above the health/morale bars, filling right to left.
+            float MedalSize = Sprite.Bounds.Width * 0.27f;
+            for (int i = 0; MedalImages != null && i < MedalImages.Count; i++)
+            {
+                float X = Sprite.Bounds.Width - MedalSize - (i * Sprite.Bounds.Width * 0.19f);
+                MedalImages[i].SetBounds(X, Sprite.Bounds.Height * 0.8f - MedalSize, MedalSize, MedalSize, UIUnits.PixelScaled);
+            }
+
             UnknownText.SetBounds(0, 0, Sprite.Bounds.Width, Sprite.Bounds.Height, UIUnits.PixelScaled);
             UnknownText.SetFontSize((int)(Sprite.Bounds.Height * 0.6f), UIUnits.PixelScaled);
+        }
+
+        // Garrison badge takes the top-right corner; the attrition skull steps left of it when both show.
+        private void PositionBadges()
+        {
+            if (GarrisonImage == null) return;
+
+            float Size = Sprite.Bounds.Width * 0.28f;
+            float Height = Sprite.Bounds.Height * 0.28f;
+            float Right = Sprite.Bounds.Width - Size;
+
+            GarrisonImage.SetBounds(Right, 0, Size, Height, UIUnits.PixelScaled);
+            AttritionImage.SetBounds(GarrisonImage.Visible ? Right - Size : Right, 0, Size, Height, UIUnits.PixelScaled);
         }
 
         public void SetUnknownUnit(string TooltipText = null)
@@ -110,6 +153,8 @@ namespace SovereigntyTK.UI
             MoraleBG.Visible = false;
             MoraleFG.Visible = false;
             AttritionImage.Visible = false;
+            GarrisonImage.Visible = false;
+            UpdateMedals(0);
             UnknownText.Visible = true;
             if (string.IsNullOrEmpty(TooltipText)) SetTooltip((GameText)null);
             else SetTooltip(GameText.CreateFromLiteral(TooltipText));
@@ -136,6 +181,8 @@ namespace SovereigntyTK.UI
                 MoraleBG.Visible = false;
                 MoraleFG.Visible = false;
                 AttritionImage.Visible = false;
+                GarrisonImage.Visible = false;
+                UpdateMedals(0);
                 SetTooltip((GameText)null);
             }
             else
@@ -202,10 +249,22 @@ namespace SovereigntyTK.UI
                 {
                     SetTooltip((GameText)null);
                 }
+
+                UpdateMedals(Unit.Medals);
+                GarrisonImage.Visible = Unit.ActiveFlags.Any(x => x.Name == "Garrison");
+                PositionBadges();
             }
 
             if (Unit.Selected) UnitImage.Sprite.SetAlpha(1);
             else UnitImage.Sprite.SetAlpha(0.5f);
+        }
+
+        private void UpdateMedals(int Count)
+        {
+            for (int i = 0; i < MedalImages.Count; i++)
+            {
+                MedalImages[i].Visible = i < Count;
+            }
         }
 
         protected override void ReclaculateBounds()

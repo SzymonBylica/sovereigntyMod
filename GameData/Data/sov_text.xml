@@ -4028,7 +4028,7 @@
     <Row textid="LANGUAGETITLE" english="Language" german="Sprache" />
     <Row textid="MSG_RANGEIMMUNE_TITLE" english="Immune" german="Immun" />
     <Row textid="MSG_RANGEIMMUNE_TEXT" english="This unit is immune to all ranged attacks, and can only be attacked in melee" german="Diese Einheit ist immun gegen all Fernkämpfe und kann nur im Nahkampf angegriffen werden" />
-    <Row textid="REVOLT_CHANCE" english="Revolt Chance: {0:0.00}%" german="Revolte Möglichkeit: {0:0.00}%" />
+    <Row textid="REVOLT_CHANCE" english="Revolt Chance: {0}%" german="Revolte Möglichkeit: {0}%" />
     <Row textid="REVOLT_HEADER" english="Rebellion!" german="Rebellion!" />
     <Row textid="REVOLT_TEXT" english="Rebels have risen up in the province of [text1], unhappy with your rule, they intend to take the province by force." german="In der Provinz [Text1]  ist einAufstand von Rebellen, die in ihrem Unmut über Euer Herrschaftssystem  vorhaben, die Provinz mit Gewalt zu übernehmen." />
     <Row textid="REVOLT_TICKER" english="Rebellion in [text1]" german="Rebellion in [Text1]" />
@@ -4465,9 +4465,10 @@
     <Row textid="TRADE_GOLD" english="Gold" german="Gold" />
     <Row textid="TRADE_FAIL_HUMAN" english="We were unable to meet our trade obligations towards [text1], they did not recieve their shipment of {0} [text2] this turn.\n\nAs a result of this, [text1] are extremely unhappy with us - there are likely to be consequances for this failure." german="Wir konnten unser Handelsabkommen mit [Text1] nicht erfüllen, somit blieb in dieser Runde die Lieferung von {0}  an [Text2] aus. Deswegen ist von [Text1] mit Konsequenzen zu rechnen." />
     <Row textid="TT_MODE_RELATIONS" english="Select the Relations map view\n\nShows how other realms feel about you, and allows you to mouseover realms to view their details and interact with them." german="Betrachte die Karte für Beziehungen\n\nDiese zeigt an, was andere Reiche von dir halten, zudem kannst du mit der Maus über Reiche gleiten, um Details zu betrachten oder mit ihnen zu interagieren." />
-    <Row textid="TT_MODE_ECONOMY" english="Select the Economy map view\n\nShows your provinces coloured to indicate damaged or boosted economies, and allows you to upgrade economy of your provinces." german="Betrachte die Karte für Wirtschaft\n\nDiese zeigt deine Provinzen in Farbe, um auf Wirtschaftsverluste oder-  aufschwung hinzudeuten; fürder gibt es dir die Möglichkeit, die Wirtschaft deiner Provinzen aufzuwerten." />
+    <Row textid="TT_MODE_ECONOMY" english="Select the Economy map view\n\nShows your provinces coloured to indicate damaged or boosted economies, and lets you construct buildings in them." german="Betrachte die Karte für Wirtschaft\n\nDiese zeigt deine Provinzen in Farbe, um auf Wirtschaftsverluste oder-Aufschwung hinzuweisen, und lässt dich dort Gebäude errichten." />
     <Row textid="TT_MODE_POLITICS" english="Select the Political map view\n\nShows each realm in a unique colour, allows you to interact with realms." german="Betrachte die politische Karte\n\nDiese zeigt jedes Reich in spezifischer Farbe und läßt dich interagieren." />
     <Row textid="TT_MODE_DEFAULT" english="Select the default map view." german="Wähle die Standardkarte" />
+    <Row textid="TT_MODE_PLAGUE" english="Select the Plague map view\n\nShows provinces with active plague, temporary plague immunity, and provinces where plague can still break out." german="Betrachte die Seuchenkarte\n\nDiese zeigt Provinzen mit aktiver Seuche, vorübergehender Seuchenimmunität und Provinzen, in denen die Seuche noch ausbrechen kann." />
     <Row textid="LISTPANELTOOLTIP" english="Show/Hide the Province and Army lists" german="Zeige/Verberge die Listen der Provinzen und Heere" />
     <Row textid="ACTIVEMAGICPANELTOOLTIP" english="Show/Hide your active spells" german="Zeige/Verberge deine aktiven Verwünschungen" />
     <Row textid="PRISONERPANELTOOLTIP" english="Show/Hide your current prisoners" german="Zeige/Verberge deine derzeitigen Gefangenen" />
@@ -4549,7 +4550,7 @@
     <Row textid="MODEDESC_DEPLOYUNIT" english="Select a province to deploy your unit to\nRight click to cancel" german="Wähle eine Provinz deine Einheit aufzustellen\nRechtsklick abzubrechen" />
     <Row textid="MODEDESC_MOVESTACK" english="Click to move your stack\nRight click to deselect\nToggle units by clicking them (deselected units will not move)" german="Klicke deinen Stapel zu verschieben.\nDeaktiviere mit Rechtsklick\nZum Umschalten klicke auf  diese Einheiten (Deaktivierte Einheiten sind nicht verschiebbar)  " />
     <Row textid="MODEDESC_RELATIONS" english="Shows the feelings of other realms towards [text1]" german="Zeigt die Haltung anderer Reiche dir gegenüber [text1]" />
-    <Row textid="MODEDESC_ECONOMY" english="Shows the current economic state of your realm\nUpgrade provinces by clicking the buttons on them" german="Zeigt den gegenwärtigen Wirtschaftsstatus deines Reiches an\Aufwertung deiner Provinzen mit einem Klick auf deren Buttons" />
+    <Row textid="MODEDESC_ECONOMY" english="Shows the current economic state of your realm\nClick a province to construct or demolish buildings" german="Zeigt den gegenwärtigen Wirtschaftsstatus deines Reiches an\nKlicke eine Provinz, um Gebäude zu errichten oder abzureißen" />
     <Row textid="MODEDESC_POLITICAL" english="Shows realms in their colours\nUse the buttons on each capitol to interact with the realm" german="Zeigt die Reiche in ihren Farben\nBenutze die Buttons für jede Hauptstadt, um  mit dem Reich zu interagieren" />
     <Row textid="MODECOL_MOVE1" english="Your province" german="Deine Provinz" />
     <Row textid="MODECOL_MOVE2" english="Allied province" german="Verbündete Provinz" />
@@ -5008,6 +5009,12 @@
     <Row textid="FORMAT_BUILDLIMIT" english="Max in province: {0}" german="Maximal in Provinz: {0}" />
     <Row textid="TT_PROVINCE_CANBUILD" english="Empty Building Slot\n\nYou can construct a building up to Tier {0} here.\n\n(You can construct buildings one Tier higher than the current highest Tier.)" german="Leerer Bauplatz\n\nDu kannst hier ein Gebäude mit maximal Stufe {0} errichten. \n\nDu kannst Gebäude errichten, die eine Stufe höher sind, als die gegenwärtig höchste Stufe." />
     <Row textid="FORMAT_PROVINCEINCOME" english="Income: {0} Current / {1} Base" german="Einkommen: {0} Gegenwärtig/ {1} Basis" />
+    <Row textid="PROVCARD_INCOME" english="Income: {0} (base {1})" german="Einkommen: {0} (Basis {1})" />
+    <Row textid="PROVCARD_RESEARCH" english="Research: {0} RP" german="Forschung: {0} RP" />
+    <Row textid="PROVCARD_EMPTYSLOT" english="Empty Building Slot" german="Leerer Bauplatz" />
+    <Row textid="TT_PROVINCE_RESEARCH" english="[b]Research Points[/b]: generated by this province each turn for its owner's magic research.\n\n" german="[b]Forschungspunkte[/b]: werden von dieser Provinz jede Runde für die Magieforschung ihres Besitzers erzeugt.\n\n" />
+    <Row textid="RESEARCH_BASE" english="Province base" german="Provinzbasis" />
+    <Row textid="RESEARCH_OTHER" english="Other effects" german="Andere Effekte" />
     <Row textid="MSG_BATTLEFAILED_TITLE" english="Attack Failed" german="Angriff Gescheitert" />
     <Row textid="MSG_BATTLEFAILED_TEXT" english="My Liege, your army which was sent to assault [text1] was unable to make it onto the field due to the presence of powerful defensive magic" german="Mein Fürst,  Eurem  Heer -  ausgeschickt [Text1] zu überfallen -  gelang der Feldzug aufgrund  der Präsenz eines starken Zaubers nicht." />
     <Row textid="MSG_DEMOLISH_TITLE" english="Demolish Building?" german="Abriß des Geäudes?" />
@@ -5092,6 +5099,8 @@
     <Row textid="TRADE_NO" english="Cancel Trade" german="Widerrufe Handel" />
     <Row textid="EVENT_TRADEANNOYED" english="Made too many trade requests" german="Zu viele  Handelsanträge  getätigt" />
     <Row textid="TEXT_DISTANCE" english="Distance to Capitol" german="Entfernung  zur  Hauptstadt" />
+    <Row textid="TEXT_DISTANCE_STEPS" english="Distance to Capitol ({0})" german="Entfernung zur Hauptstadt ({0})" />
+    <Row textid="TEXT_DISTANCE_NOROUTE" english="No route to Capitol" german="Kein Weg zur Hauptstadt" />
     <Row textid="TEXT_ECONOMY" english="Base Economy" german="Produktionsbasis  der  Wirtschaft" />
     <Row textid="HEADER_TRADE" english="Trade" german="Handel" />
     <Row textid="TT_CLOSETRADE" english="Close this trade window without making an offer." german="Schließe  Handelsfenster, ohne ein  Angebot  gemacht  zu  haben." />

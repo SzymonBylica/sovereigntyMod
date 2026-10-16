@@ -32,7 +32,7 @@
       <name>MinimapFrame</name>
       <width>294px</width>
       <height>216px</height>
-      <imagefile>Data\Images\Hud\MainHUDNew\mini_frame.png</imagefile>
+      <imagefile>Data\Images\Hud\MainHUDNew\mini_frame_plague.png</imagefile>
       <ignoremouse>true</ignoremouse>
 
       <control type="button">
@@ -76,11 +76,11 @@
         <height>24px</height>
         <offsetx>7px</offsetx>
         <offsety>150px</offsety>
-        <imgnormal>Data\Images\HUD\MainHUDNew\diplomacy_normal.png</imgnormal>
-        <imghigh>Data\Images\HUD\MainHUDNew\diplomacy_mouseover.png</imghigh>
-        <imgpress>Data\Images\HUD\MainHUDNew\diplomacy_pressed.png</imgpress>
+        <imgnormal>Data\Images\HUD\MainHUDNew\plague_normal.png</imgnormal>
+        <imghigh>Data\Images\HUD\MainHUDNew\plague_mouseover.png</imghigh>
+        <imgpress>Data\Images\HUD\MainHUDNew\plague_pressed.png</imgpress>
         <onclick>MapModePlagueClick</onclick>
-        <tooltip>TT_MODE_ECONOMY</tooltip>
+        <tooltip>TT_MODE_PLAGUE</tooltip>
       </control>
     </control>
   </control>

@@ -28,6 +28,7 @@ namespace SovereigntyTK.UI
             GameSystem.RegisterEvent(GameSystem_OnScriptEvent, "StackSelectionChanged");
             GameSystem.RegisterEvent(HandleUnitDisbanded, "UnitDisbanded");
             GameSystem.RegisterEvent(HandleHeroDisbanded, "HeroDisbanded");
+            GameSystem.RegisterEvent(HandleUnitPromoted, "UnitPromoted");
             BG = GameForm.GetControlByName<ControlImage>("StackBG");
 
             int Xpos = 34;
@@ -70,6 +71,11 @@ namespace SovereigntyTK.UI
         private void HandleHeroDisbanded(string EventName, params object[] Args)
         {
             if (BG.Visible) UpdateStack();
+        }
+
+        private void HandleUnitPromoted(string EventName, params object[] Args)
+        {
+            if (BG.Visible && Stack != null) UpdateStack();
         }
 
         void Icon_OnDoubleClick(UIControl Control)
@@ -250,6 +256,7 @@ namespace SovereigntyTK.UI
             GameSystem.UnregisterEvent(GameSystem_OnScriptEvent, "StackSelectionChanged");
             GameSystem.UnregisterEvent(HandleUnitDisbanded, "UnitDisbanded");
             GameSystem.UnregisterEvent(HandleHeroDisbanded, "HeroDisbanded");
+            GameSystem.UnregisterEvent(HandleUnitPromoted, "UnitPromoted");
         }
 
         private void HandleUnitDisbanded(string EventName, params object[] Args)

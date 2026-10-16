@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SovereigntyTK.UI
 {
     public class ControlProvinceCard: UIControl
     {
+        const int MaxBuildingSlots = 10;
+
         ControlImage CardBGImage;
         private WorkingProvince CurrentProvince;
 
@@ -27,6 +30,13 @@ namespace SovereigntyTK.UI
         ControlImage EconomyBG;
         ControlText EconomyText2;
         ControlText RevoltText;
+        ControlText IncomeText;
+        ControlText ResearchText;
+        ControlText TerrainText;
+
+        List<ControlImage> BuildingIcons;
+        List<ControlImage> BuildingFrames;
+        int BuildingSlotCount;
 
         public ControlProvinceCard(GameBase Game)
             :base(Game)
@@ -62,13 +72,10 @@ namespace SovereigntyTK.UI
             EconomyText2.TextAnchor = AnchorPoints.Middle;
             EconomyText2.MouseInputType = MouseInputTypes.Forced;
 
-            RevoltText = new ControlText(Game);
-            AddChild(RevoltText);
-            RevoltText.FontName = "Trebuchet MS";
-            RevoltText.Colour = Color.FromArgb(0, 0, 0);
-            RevoltText.TextAnchor = AnchorPoints.TopLeft;
-            RevoltText.ScrollingEnabled = false;
-            RevoltText.MouseInputType = MouseInputTypes.Forced;
+            RevoltText = CreateStatText();
+            IncomeText = CreateStatText();
+            ResearchText = CreateStatText();
+            TerrainText = CreateStatText();
 
             DescriptionText = new ControlText(Game);
             AddChild(DescriptionText);
@@ -79,9 +86,10 @@ namespace SovereigntyTK.UI
             DescriptionText.AcceptMouseWheel = true;
             DescriptionText.MouseInputType = MouseInputTypes.Forced;
 
+            // Controls with their own tooltip must not bubble: the card's (empty) tooltip would replace theirs.
             foreach (UIControl Control in GetChildren())
             {
-                if (Control == RevoltText) continue;
+                if (Control == RevoltText || Control == IncomeText || Control == ResearchText) continue;
                 Control.BubbleMouseovers = true;
             }
 
@@ -97,6 +105,36 @@ namespace SovereigntyTK.UI
             AddChild(PlagueIcon);
             PlagueIcon.SetImageFile("Data\\Images\\HUD\\Info\\plague_icon.png");
             PlagueIcon.SetTooltip(GameText.CreateLocalised("TTPLAGUE"));
+
+            BuildingIcons = new List<ControlImage>();
+            BuildingFrames = new List<ControlImage>();
+            for (int i = 0; i < MaxBuildingSlots; i++)
+            {
+                ControlImage Icon = new ControlImage(Game);
+                Icon.MouseInputType = MouseInputTypes.Forced;
+                Icon.Visible = false;
+                AddChild(Icon);
+                BuildingIcons.Add(Icon);
+
+                ControlImage Frame = new ControlImage(Game);
+                Frame.MouseInputType = MouseInputTypes.None;
+                Frame.SetImageFile("Data\\Images\\HUD\\Info\\building_built.png");
+                Frame.Visible = false;
+                AddChild(Frame);
+                BuildingFrames.Add(Frame);
+            }
+        }
+
+        private ControlText CreateStatText()
+        {
+            ControlText Text = new ControlText(Game);
+            AddChild(Text);
+            Text.FontName = "Trebuchet MS";
+            Text.Colour = Color.FromArgb(0, 0, 0);
+            Text.TextAnchor = AnchorPoints.TopLeft;
+            Text.ScrollingEnabled = false;
+            Text.MouseInputType = MouseInputTypes.Forced;
+            return Text;
         }
 
         private void SetControlPositions()
@@ -108,12 +146,6 @@ namespace SovereigntyTK.UI
 
             NameText.SetBounds(Sprite.Bounds.Width * 0.102f, Sprite.Bounds.Height * 0.054f, Sprite.Bounds.Width * 0.645f, Sprite.Bounds.Height * 0.077f, UIUnits.PixelScaled);
             NameText.SetFontSize((int)(NameText.Sprite.Bounds.Height * 0.5f), UIUnits.PixelScaled);
-
-            RevoltText.SetBounds(Sprite.Bounds.Width * 0.115f, Sprite.Bounds.Height * 0.515f, Sprite.Bounds.Width * 0.792f, Sprite.Bounds.Height * 0.050f, UIUnits.PixelScaled);
-
-            DescriptionText.SetBounds(Sprite.Bounds.Width * 0.115f, Sprite.Bounds.Height * 0.565f, Sprite.Bounds.Width * 0.792f, Sprite.Bounds.Height * 0.383f, UIUnits.PixelScaled);
-            DescriptionText.SetFontSize((int)(DescriptionText.Sprite.Bounds.Height * 0.075f), UIUnits.PixelScaled);
-            RevoltText.SetFontSize((int)(DescriptionText.Sprite.Bounds.Height * 0.075f), UIUnits.PixelScaled);
 
             EconomyBG.SetBounds(Sprite.Bounds.Width * 0.05f, Sprite.Bounds.Width * 0.05f, Sprite.Bounds.Height * 0.060f, Sprite.Bounds.Height * 0.060f, UIUnits.PixelScaled);
 
@@ -129,6 +161,109 @@ namespace SovereigntyTK.UI
             }
 
             PlagueIcon.SetBounds(Sprite.Bounds.Width * 0.143f, Sprite.Bounds.Height * 0.363f, Sprite.Bounds.Width * 0.118f, Sprite.Bounds.Height * 0.072f, UIUnits.PixelScaled);
+
+            LayoutTextPanel();
+        }
+
+        // Building row at the top of the text panel; the stat lines and description flow below it.
+        private void LayoutTextPanel()
+        {
+            if (BuildingIcons == null) return;
+
+            float W = Sprite.Bounds.Width;
+            float H = Sprite.Bounds.Height;
+            float Left = W * 0.115f;
+            float Width = W * 0.792f;
+            float LineH = H * 0.038f;
+            float Y = H * 0.515f;
+
+            if (BuildingSlotCount > 0)
+            {
+                float Step = Math.Min(W * 0.125f, Width / BuildingSlotCount);
+                float SlotW = Step * 0.94f;
+                float SlotH = SlotW * (37f / 42f);
+                float RowY = H * 0.523f;
+                float X = Left;
+
+                for (int i = 0; i < BuildingSlotCount; i++)
+                {
+                    BuildingIcons[i].SetBounds(X, RowY, SlotW, SlotH, UIUnits.PixelScaled);
+                    BuildingFrames[i].SetBounds(X, RowY, SlotW, SlotH, UIUnits.PixelScaled);
+                    X += Step;
+                }
+
+                Y = RowY + SlotH + H * 0.006f;
+            }
+
+            RevoltText.SetBounds(Left, Y, Width, LineH, UIUnits.PixelScaled);
+            Y += LineH;
+            IncomeText.SetBounds(Left, Y, Width, LineH, UIUnits.PixelScaled);
+            Y += LineH;
+            ResearchText.SetBounds(Left, Y, Width, LineH, UIUnits.PixelScaled);
+            Y += LineH;
+            TerrainText.SetBounds(Left, Y, Width, LineH, UIUnits.PixelScaled);
+            Y += LineH + H * 0.015f;
+            DescriptionText.SetBounds(Left, Y, Width, H * 0.948f - Y, UIUnits.PixelScaled);
+
+            int FontSize = (int)(H * 0.383f * 0.075f);
+            RevoltText.SetFontSize(FontSize, UIUnits.PixelScaled);
+            IncomeText.SetFontSize(FontSize, UIUnits.PixelScaled);
+            ResearchText.SetFontSize(FontSize, UIUnits.PixelScaled);
+            TerrainText.SetFontSize(FontSize, UIUnits.PixelScaled);
+            DescriptionText.SetFontSize(FontSize, UIUnits.PixelScaled);
+        }
+
+        private void UpdateBuildings(WorkingProvince Province)
+        {
+            List<BuildingEffect> Built = Province.Buildings.Take(MaxBuildingSlots).ToList();
+            BuildingSlotCount = Math.Min(MaxBuildingSlots, Math.Max(Built.Count, Province.CurrentEconomy));
+            bool PlayerOwned = Province.OwnerRealm == Province.Game.PlayerRealm;
+
+            for (int i = 0; i < MaxBuildingSlots; i++)
+            {
+                ControlImage Icon = BuildingIcons[i];
+                ControlImage Frame = BuildingFrames[i];
+
+                if (i < Built.Count)
+                {
+                    BuildingEffect Building = Built[i];
+                    Icon.SetImageFile("Data\\Images\\HUD\\Buildings\\" + Building.Data.ArtName + "_normal.png");
+
+                    List<GameText> TT = new List<GameText>();
+                    TT.Add(GameText.CreateLocalised(Building.Data.DisplayName));
+                    TT.Add(GameText.CreateLocalised("FORMAT_NEWLINE"));
+                    TT.Add(GameText.CreateLocalised("FORMAT_NEWLINE"));
+                    TT.Add(GameText.CreateLocalised(Building.Data.DisplayDesc));
+                    Icon.SetTooltip(TT);
+
+                    Icon.Visible = true;
+                    Frame.Visible = true;
+                }
+                else if (i < BuildingSlotCount)
+                {
+                    Icon.SetImageFile("Data\\Images\\HUD\\Info\\building_planned.png");
+                    if (PlayerOwned) Icon.SetTooltip(GameText.CreateLocalised("TT_PROVINCE_CANBUILD", Province.MaxBuildableTier()));
+                    else Icon.SetTooltip(GameText.CreateLocalised("PROVCARD_EMPTYSLOT"));
+
+                    Icon.Visible = true;
+                    Frame.Visible = false;
+                }
+                else
+                {
+                    Icon.Visible = false;
+                    Frame.Visible = false;
+                }
+            }
+
+            LayoutTextPanel();
+        }
+
+        // Landmark descriptions hardcode the base value as an "RP  22" line; the live value has its own line now.
+        private GameText GetFlavourText(WorkingProvince Province)
+        {
+            string Text = GameText.CreateLocalised(Province.Description).GetActualText(Game);
+            Text = Regex.Replace(Text, @"^[ \t]*RP:?[ \t]*\d+[ \t]*\r?\n?", "", RegexOptions.Multiline);
+            return GameText.CreateFromLiteral(Text);
         }
 
         public void SetProvince(WorkingProvince Province)
@@ -176,29 +311,29 @@ namespace SovereigntyTK.UI
             EconomyText2.Visible = true;
 
             EconomyText2.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", Province.CurrentEconomy));
+
+            UpdateBuildings(Province);
+
             int Income = Province.Game.EconomyController.GetProvinceIncome(Province, Province.OwnerRealm.CapitolProvince, 1f);
 
-            GameText Text = GameText.CreateLocalised("TT_BUILDING_ECON");
-            Text.AddChildText(GameText.CreateLocalised("FORMAT_PROVINCEINCOME", Income, Province.BaseIncome.GetValue()));
-
-            EconomyText2.SetTooltip(Text);
+            List<GameText> IncomeTip = ProvinceIncomeTooltip.BuildTooltip(Province);
+            EconomyText2.SetTooltip(IncomeTip);
 
             RevoltText.SetTextData(GameText.CreateLocalised("REVOLT_CHANCE", Province.RevoltChance.GetValue()));
             RevoltText.SetTooltip(Province.RevoltChance.GetBreakdown());
 
-            List<GameText> Description = new List<GameText>();
-            Description.Add(GameText.CreateLocalised("FORMAT_NEWLINE"));
-            GameText TerrainText = (GameText.CreateLocalised("TT_UNITDEPLOY"));
-            TerrainText.AddChildText(GameText.CreateLocalised(Province.Terrain.DisplayName));
-            Description.Add(TerrainText);
-            Description.Add(GameText.CreateLocalised("FORMAT_NEWLINE"));
-            Description.Add(GameText.CreateLocalised("FORMAT_PROVINCEINCOME", Income, Province.BaseIncome.GetValue()));
-            Description.Add(GameText.CreateLocalised("FORMAT_NEWLINE"));
-            Description.Add(GameText.CreateLocalised("FORMAT_NEWLINE"));
+            IncomeText.SetTextData(GameText.CreateLocalised("PROVCARD_INCOME", Income, Province.BaseIncome.GetValue()));
+            IncomeText.SetTooltip(IncomeTip);
 
-            if (Province.Description != "" && Province.Description != "0") Description.Add(GameText.CreateLocalised(Province.Description));
+            ResearchText.SetTextData(GameText.CreateLocalised("PROVCARD_RESEARCH", Province.ResearchPoints.GetValue()));
+            ResearchText.SetTooltip(ProvinceResearchTooltip.BuildTooltip(Province));
 
-            DescriptionText.SetTextData(Description);
+            GameText Terrain = GameText.CreateLocalised("TT_UNITDEPLOY");
+            Terrain.AddChildText(GameText.CreateLocalised(Province.Terrain.DisplayName));
+            TerrainText.SetTextData(Terrain);
+
+            if (Province.Description != "" && Province.Description != "0") DescriptionText.SetTextData(GetFlavourText(Province));
+            else DescriptionText.SetTextData((GameText)null);
 
             PlagueIcon.Visible = Province.PlagueTurns > 0;
 

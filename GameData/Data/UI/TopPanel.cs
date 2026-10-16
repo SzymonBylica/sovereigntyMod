@@ -297,11 +297,12 @@ namespace SovereigntyTK.UI
                 }
 
                 //line for distance penalty
-                int DistanceValue = GameSystem.CurrentGame.EconomyController.GetProvinceDistanceEffect(Province, GameSystem.CurrentGame.PlayerRealm.CapitolProvince);
+                int Distance;
+                int DistanceValue = ProvinceIncomeTooltip.GetDistancePenalty(Province, GameSystem.CurrentGame.PlayerRealm.CapitolProvince, out Distance);
                 if (DistanceValue < 0)
                 {
                     EconomyListItem DistanceItem = new EconomyListItem();
-                    DistanceItem.Caption = GameText.CreateLocalised("TEXT_DISTANCE");
+                    DistanceItem.Caption = ProvinceIncomeTooltip.GetDistanceCaption(Distance);
                     DistanceItem.Value = DistanceValue;
                     DistanceItem.IndentLevel = 2;
                     Item.Children.Add(DistanceItem);

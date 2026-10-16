@@ -17,10 +17,33 @@ namespace SovereigntyTK.UI
 {
     public class TickerPanel: ScriptBase
     {
-        List<GameText> TickerTexts;
-        List<GameText> PendingTexts;
+        const int MaxEntries = 50;
+        const int WrapChars = 46;
+        const string WrapIndent = "   ";
+
+        static readonly Color NormalColour = Color.FromArgb(255, 238, 161);
+        static readonly Color BattleColour = Color.FromArgb(255, 255, 255);
+
+        class TickerEntry
+        {
+            public GameText Text;
+            public bool IsBattle;
+        }
+
+        class TickerRow
+        {
+            public string Text;
+            public Color Colour;
+        }
+
+        // Ticker messages also arrive from AI turn threads, so the handler only queues entries;
+        // controls are touched from Update/UI callbacks on the render thread.
+        readonly object EntryLock = new object();
+        List<TickerEntry> TickerTexts;
+        List<TickerEntry> PendingTexts;
         ControlText Ticker;
-        GameText CurrentTopText;
+        ControlList<TickerRow> LogList;
+        bool LogDirty;
         float Timer;
 
         public bool IsOpen;
@@ -32,17 +55,27 @@ namespace SovereigntyTK.UI
             GameSystem.OnViewportChanged += GameSystem_OnViewportChanged;
 
             Ticker = GameForm.GetControlByName<ControlText>("TickerText");
-            Ticker.ScrollingEnabled = true;
 
-            TickerTexts = new List<GameText>();
-            PendingTexts = new List<GameText>();
+            // One row per line so each message can have its own colour (the text renderer has no colour tags).
+            LogList = new ControlList<TickerRow>(GameSystem);
+            GameForm.AddChild(LogList);
+            LogList.ManualUpdate = true;
+            LogList.HighlightEnabled = false;
+            LogList.SelectionEnabled = false;
+            LogList.OnListItemUpdated += LogList_OnListItemUpdated;
+            LogList.SetVisibleItems(18);
+            LogList.SetBounds(8, 4, 360, 292, UIUnits.Pixel);
+            LogList.Visible = false;
+
+            TickerTexts = new List<TickerEntry>();
+            PendingTexts = new List<TickerEntry>();
 
             foreach (GameText Text in GameSystem.CurrentGame.TickerTexts)
             {
-                TickerTexts.Add(Text);
+                TickerTexts.Add(new TickerEntry { Text = Text, IsBattle = IsBattleText(Text) });
             }
 
-            CloseTicker();
+            ShowCollapsed();
         }
 
         private void HandleCloseRequest(string EventName, params object[] Args)
@@ -59,21 +92,48 @@ namespace SovereigntyTK.UI
 
         void GameSystem_OnScriptEvent(string EventName, params object[] Args)
         {
-            if (EventName == "TickerMessage")
+            if (EventName != "TickerMessage") return;
+
+            TickerMessage Msg = (TickerMessage)Args[0];
+
+            // Suppress AI-vs-AI treaty chatter (NAP / defence / alliance spam).
+            if (IsForeignTreatyMessage(Msg)) return;
+
+            GameText Text = GameText.CreateLocalised("FORMAT_TICKER");
+            Text.AddChildText(Msg.MessageText);
+            TickerEntry Entry = new TickerEntry { Text = Text, IsBattle = IsBattleText(Msg.MessageText) };
+
+            lock (EntryLock)
             {
-                TickerMessage Msg = (TickerMessage)Args[0];
+                if (TickerTexts.Count == MaxEntries) TickerTexts.RemoveAt(0);
+                TickerTexts.Add(Entry);
 
-                if (TickerTexts.Count == 50) TickerTexts.RemoveAt(0);
-
-                GameText Text = GameText.CreateLocalised("FORMAT_TICKER");
-                Text.AddChildText(Msg.MessageText);
-
-                TickerTexts.Add(Text);
-                PendingTexts.Add(Text);
-
-                if (IsOpen) OpenTicker();
-                else CloseTicker();
+                if (IsOpen) LogDirty = true;
+                else PendingTexts.Add(Entry);
             }
+        }
+
+        // Battle reports ("X attacks Y", "X defeats Y") are hardcoded English literals in the engine.
+        private bool IsBattleText(GameText Text)
+        {
+            if (Text == null) return false;
+
+            string Resolved = Text.GetActualText(GameSystem);
+            return Resolved.Contains(" attacks ") || Resolved.Contains(" defeats ");
+        }
+
+        private bool IsForeignTreatyMessage(TickerMessage Msg)
+        {
+            if (Msg.MessageType != TickerMessageType.Diplomacy) return false;
+            if (Msg.MessageText == null) return false;
+            if (Msg.MessageText.TextName != "NEW_TREATY" && Msg.MessageText.TextName != "END_TREATY") return false;
+
+            WorkingRealm Player = GameSystem.CurrentGame.PlayerRealm;
+            if (Player == null) return true;
+
+            string PlayerName = GameText.CreateLocalised(Player.DisplayName).GetActualText(GameSystem);
+            string FullText = Msg.MessageText.GetActualText(GameSystem);
+            return FullText.IndexOf(PlayerName, System.StringComparison.OrdinalIgnoreCase) < 0;
         }
 
         public override void Dispose()
@@ -110,7 +170,16 @@ namespace SovereigntyTK.UI
 
         public override void Update(float ElapsedTime)
         {
-            if (!IsOpen)
+            if (Ticker == null) return;
+
+            if (IsOpen)
+            {
+                if (LogDirty) RebuildLog();
+                return;
+            }
+
+            TickerEntry Next = null;
+            lock (EntryLock)
             {
                 if (PendingTexts.Count > 0)
                 {
@@ -118,43 +187,118 @@ namespace SovereigntyTK.UI
                     if (Timer > 0.25f)
                     {
                         Timer -= 0.25f;
-                        Ticker.Visible = true;
-                        Ticker.SetTextData(PendingTexts[0]);
+                        Next = PendingTexts[0];
                         PendingTexts.RemoveAt(0);
                     }
                 }
             }
+
+            if (Next != null) ShowEntry(Next);
         }
 
+        private void ShowEntry(TickerEntry Entry)
+        {
+            Ticker.Visible = true;
+            Ticker.Colour = Entry.IsBattle ? BattleColour : NormalColour;
+            Ticker.SetTextData(Entry.Text);
+        }
 
         public void OpenTicker()
         {
-            PendingTexts.Clear();
-            CurrentTopText = null;
-
-            if (TickerTexts.Count == 0) Ticker.Visible = false;
-            else
+            lock (EntryLock)
             {
-                Ticker.Visible = true;
-                GameForm.SetSize(400, 300, UIUnits.Pixel);
-                Ticker.SetTextData(TickerTexts);
-                Ticker.ScrollToBottom();
+                PendingTexts.Clear();
+                if (TickerTexts.Count == 0)
+                {
+                    Ticker.Visible = false;
+                    return;
+                }
                 IsOpen = true;
             }
+
+            GameForm.SetSize(400, 300, UIUnits.Pixel);
+            Ticker.Visible = false;
+            LogList.Visible = true;
+            RebuildLog();
         }
 
         public void CloseTicker()
         {
-            if (TickerTexts.Count == 0) Ticker.Visible = false;
-            else if (IsOpen)
+            if (IsOpen) ShowCollapsed();
+        }
+
+        // Also used on load, where IsOpen starts false: the old CloseTicker() then never set any text,
+        // leaving the bar blank with its scrollbar parts drawn at their default (stretched) size.
+        private void ShowCollapsed()
+        {
+            TickerEntry Last = null;
+            lock (EntryLock)
             {
-                Ticker.Visible = true;
-                GameForm.SetSize(400, 30, UIUnits.Pixel);
-                Ticker.SetTextData(TickerTexts[TickerTexts.Count - 1]);
-                Ticker.ResetScroll();
                 IsOpen = false;
-                Update(0.25f);
+                if (TickerTexts.Count > 0) Last = TickerTexts[TickerTexts.Count - 1];
             }
+
+            GameForm.SetSize(400, 30, UIUnits.Pixel);
+            LogList.Visible = false;
+
+            if (Last == null) Ticker.Visible = false;
+            else ShowEntry(Last);
+        }
+
+        private void RebuildLog()
+        {
+            List<TickerEntry> Snapshot;
+            lock (EntryLock)
+            {
+                LogDirty = false;
+                Snapshot = TickerTexts.ToList();
+            }
+
+            LogList.ClearItems();
+            foreach (TickerEntry Entry in Snapshot)
+            {
+                Color Colour = Entry.IsBattle ? BattleColour : NormalColour;
+                foreach (string Line in WrapText(Entry.Text.GetActualText(GameSystem)))
+                {
+                    LogList.AddItem(new TickerRow { Text = Line, Colour = Colour });
+                }
+            }
+            LogList.ScrollToBottom();
+        }
+
+        void LogList_OnListItemUpdated(ListItem<TickerRow> Item)
+        {
+            ControlText Line = new ControlText(GameSystem);
+            Line.SetBounds(0, 0, Item.Container.Sprite.Bounds.Width, Item.Container.Sprite.Bounds.Height, UIUnits.PixelScaled);
+            Line.SetFontSize((int)(Item.Container.Sprite.Bounds.Height * 0.75f), UIUnits.PixelScaled);
+            Line.FontName = "Trebuchet MS";
+            Line.Bold = true;
+            Line.TextAnchor = AnchorPoints.Left;
+            Line.Colour = Item.Data.Colour;
+            Line.SetTextData(GameText.CreateFromLiteral(Item.Data.Text));
+            Item.Container.AddChild(Line);
+        }
+
+        // Rows are one line tall, so long messages are pre-wrapped (approximate width of the 12px bold font).
+        private static List<string> WrapText(string Text)
+        {
+            List<string> Lines = new List<string>();
+            foreach (string Part in Text.Split('\n'))
+            {
+                string Remaining = Part.Trim();
+                if (Remaining.Length == 0) continue;
+
+                while (Remaining.Length > WrapChars)
+                {
+                    int Cut = Remaining.LastIndexOf(' ', WrapChars);
+                    if (Cut <= WrapIndent.Length) Cut = WrapChars;
+
+                    Lines.Add(Remaining.Substring(0, Cut).TrimEnd());
+                    Remaining = WrapIndent + Remaining.Substring(Cut).TrimStart();
+                }
+                Lines.Add(Remaining);
+            }
+            return Lines;
         }
     }
 }
