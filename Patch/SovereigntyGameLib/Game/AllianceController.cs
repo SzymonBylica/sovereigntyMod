@@ -303,7 +303,10 @@ namespace SovereigntyTK.Game
 			{
 				this.Game.GameCore.FireEvent("AlliancesChanged", new object[0]);
 			}
-			this.Game.GameCore.FireEvent("TickerMessage", new object[] { this.BuildTickerMessage("NEW_TREATY", Realm1, Realm2, this.GetTreatyName(relationStates)) });
+			if (Realm1 == this.Game.PlayerRealm || Realm2 == this.Game.PlayerRealm)
+			{
+				this.Game.GameCore.FireEvent("TickerMessage", new object[] { this.BuildTickerMessage("NEW_TREATY", Realm1, Realm2, this.GetTreatyName(relationStates)) });
+			}
 			if ((Realm1 == this.Game.PlayerRealm || Realm2 == this.Game.PlayerRealm) && relationStates == RelationStates.Alliance)
 			{
 				this.Game.GameCore.FireEvent("PlayerAlliesChanged", new object[0]);
@@ -378,7 +381,10 @@ namespace SovereigntyTK.Game
 			{
 				this.Game.GameCore.FireEvent("AlliancesChanged", new object[0]);
 			}
-			this.Game.GameCore.FireEvent("TickerMessage", new object[] { this.BuildTickerMessage("END_TREATY", Realm1, Realm2, this.GetTreatyName(relation)) });
+			if (Realm1 == this.Game.PlayerRealm || Realm2 == this.Game.PlayerRealm)
+			{
+				this.Game.GameCore.FireEvent("TickerMessage", new object[] { this.BuildTickerMessage("END_TREATY", Realm1, Realm2, this.GetTreatyName(relation)) });
+			}
 			if (Realm2 == this.Game.PlayerRealm)
 			{
 				GameText treatyName = this.GetTreatyName(relation);

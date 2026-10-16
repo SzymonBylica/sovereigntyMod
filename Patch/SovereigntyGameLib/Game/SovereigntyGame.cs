@@ -223,6 +223,15 @@ namespace SovereigntyTK.Game
 		private void HandleTickerMessage(string EventName, params object[] Args)
 		{
 			TickerMessage tickerMessage = (TickerMessage)Args[0];
+			if (tickerMessage.MessageType == TickerMessageType.Diplomacy && tickerMessage.MessageText != null && (tickerMessage.MessageText.TextName == "NEW_TREATY" || tickerMessage.MessageText.TextName == "END_TREATY") && PlayerRealm != null)
+			{
+				string playerName = GameText.CreateLocalised(PlayerRealm.DisplayName, new object[0]).GetActualText(GameCore);
+				string fullText = tickerMessage.MessageText.GetActualText(GameCore);
+				if (fullText.IndexOf(playerName, StringComparison.OrdinalIgnoreCase) < 0)
+				{
+					return;
+				}
+			}
 			if (TickerTexts.Count == 50)
 			{
 				TickerTexts.RemoveAt(0);
