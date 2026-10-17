@@ -17,6 +17,7 @@ Bug Fixes
 
 3. Fixed an AI unit movement bug that led to stalled armies in enemy provinces without an ongoing siege.
 
+4. Fixed a crash on return to main menu.
 
 Strategy Map
 
@@ -54,7 +55,7 @@ Interface
 
 3. Income breakdowns show how far the province is from the capital, e.g. "Distance to Capitol (4): -158", using the same calculation as the actual income.
 
-4. Revolt chance shows the current value and a "base" without the garrison, so you can tell if it is safe to move the army. Capitals are labelled instead of showing a fake base.
+4. Revolt chance shows the current value and a "base" without the garrison, so you can tell if it is safe to move the army.
 
 5. Terrain has a short flavour tooltip describing the ground and what to expect in battle. Hovering the province name or flag shows the current owner and rightful owner(s). Sea zones use a sea flag instead of an empty slot.
 
@@ -71,11 +72,3 @@ Interface
 11. Tactical battle tiles always show health and morale bars, not only when damaged.
 
 12. The top-bar date always uses English month names, independent of the OS language.
-
-13. Fixed the message log showing a stretched image after loading a game, and a crash when returning to the main menu.
-
-
-Content
-
-1. Riesental Slingers are renamed to Poachers with a unique portrait. Riesental Footmen also have their own infantry portrait (stats unchanged).
-
