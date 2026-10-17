@@ -54,13 +54,28 @@ Interface
 
 3. Income breakdowns show how far the province is from the capital, e.g. "Distance to Capitol (4): -158", using the same calculation as the actual income.
 
-4. The message log no longer lists treaties between AI realms. Battle reports are shown in white, other messages in gold.
+4. Revolt chance shows the current value and a "base" without the garrison, so you can tell if it is safe to move the army. Capitals are labelled instead of showing a fake base.
 
-5. The plague map button has its own icon, minimap tab and tooltip.
+5. Terrain has a short flavour tooltip describing the ground and what to expect in battle. Hovering the province name or flag shows the current owner and rightful owner(s). Sea zones use a sea flag instead of an empty slot.
 
-6. Unit icons in the army panel show promotion medals and a badge for Garrison units.
+6. Province buildings are listed by tier (then name) on the hover card and economy card.
 
-7. Tactical battle tiles always show health and morale bars, not only when damaged.
+7. The message log no longer lists treaties between AI realms. Battle reports are shown in white, other messages in gold. A separator and "Turn N starts" mark the beginning of each of your turns.
 
-8. Fixed the message log showing a stretched image after loading a game, and a crash when returning to the main menu.
+8. Foreign Affairs has a large home-realm flag in the top bar for quickly returning to your own diplomacy view.
+
+9. The plague map button has its own icon, minimap tab and tooltip.
+
+10. Unit icons in the army panel show promotion medals and a badge for Garrison units.
+
+11. Tactical battle tiles always show health and morale bars, not only when damaged.
+
+12. The top-bar date always uses English month names, independent of the OS language.
+
+13. Fixed the message log showing a stretched image after loading a game, and a crash when returning to the main menu.
+
+
+Content
+
+1. Riesental Slingers are renamed to Poachers with a unique portrait. Riesental Footmen also have their own infantry portrait (stats unchanged).
 
