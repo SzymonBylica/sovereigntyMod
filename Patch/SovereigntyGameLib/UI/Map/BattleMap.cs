@@ -1154,8 +1154,12 @@ namespace SovereigntyTK.UI.Map
 
 		public List<WorkingUnit> GetAdjacentAllies(WorkingUnit Unit)
 		{
-			List<Point> adjacentTiles = Game.GameCore.Data.CombatMap.GetAdjacentTiles(Unit.BattleData.BattleX, Unit.BattleData.BattleY);
 			List<WorkingUnit> list = new List<WorkingUnit>();
+			if (Unit == null || Unit.BattleData == null)
+			{
+				return list;
+			}
+			List<Point> adjacentTiles = Game.GameCore.Data.CombatMap.GetAdjacentTiles(Unit.BattleData.BattleX, Unit.BattleData.BattleY);
 			foreach (Point item in adjacentTiles)
 			{
 				if (TileInsideBounds(item) && Tiles[item].UnitID != -1 && Tiles[item].Unit.OwnerRealmID == Unit.OwnerRealmID)

@@ -1336,6 +1336,10 @@ namespace SovereigntyTK.Game.Battle
 
 		public void UpdateShieldWallStatus()
 		{
+			if (this.BattleEnded || this.InactiveStack == null)
+			{
+				return;
+			}
 			foreach (WorkingUnit workingUnit in this.InactiveStack.Units)
 			{
 				this.UpdateShieldWall(workingUnit);
@@ -1344,6 +1348,10 @@ namespace SovereigntyTK.Game.Battle
 
 		private void UpdateShieldWall(WorkingUnit Unit)
 		{
+			if (Unit == null || Unit.BattleData == null)
+			{
+				return;
+			}
 			if (Unit.Class != UnitClasses.Infantry)
 			{
 				return;
