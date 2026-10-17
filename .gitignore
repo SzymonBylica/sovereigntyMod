@@ -1,0 +1,12 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build outputs (do not commit - rebuild with MSBuild Release|x86)
+**/bin/
+**/obj/
+*.pdb
+*.cache

@@ -2842,7 +2842,7 @@
     <Row textid="UNITNAME189" english="Loggers" german="Holzfäller" />
     <Row textid="UNITNAME190" english="Light Infantry" german="Leichte Infanterie" />
     <Row textid="UNITNAME191" english="Skirmishers" german="Scharmützler" />
-    <Row textid="UNITNAME192" english="Slingers" german="Schleuderer" />
+    <Row textid="UNITNAME192" english="Poachers" german="Wilderer" />
     <Row textid="UNITNAME193" english="Rangers" german="Waldhüter" />
     <Row textid="UNITNAME194" english="Saboteurs" german="Saboteure" />
     <Row textid="UNITNAME196" english="Sappers" german="Sappeure" />
@@ -4032,6 +4032,27 @@
     <Row textid="REVOLT_CHANCE_BASE" english="Revolt Chance: {0}% (base {1}%)" german="Revolte Möglichkeit: {0}% (Basis {1}%)" />
     <Row textid="REVOLT_CHANCE_CAPITAL" english="Revolt Chance: {0}% (capital)" german="Revolte Möglichkeit: {0}% (Hauptstadt)" />
     <Row textid="TICKER_TURN_START" english="Turn {0} starts" german="Zug {0} beginnt" />
+    <Row textid="PROVCARD_TERRAIN" english="Terrain: [text1]" german="Terrain: [text1]" />
+    <Row textid="TT_TERRAIN_COMBATMOVE" english="Battle move cost: {0}" german="Kampfbewegungskosten: {0}" />
+    <Row textid="TT_TERRAIN_BLOCKING" english="Blocks battle movement (unless ignored)" german="Blockiert Bewegung im Kampf (außer bei Ignorieren)" />
+    <Row textid="TT_TERRAIN_PLAGUE" english="Plague: start weight {0}, duration {1} turns" german="Pest: Startgewicht {0}, Dauer {1} Züge" />
+    <Row textid="TT_TERRAIN_UPGRADECOST" english="Economy upgrade cost: {0}%" german="Wirtschaftsausbaukosten: {0}%" />
+    <Row textid="TT_PROVINCE_OWNER" english="Owner: [text1]\n" german="Besitzer: [text1]\n" />
+    <Row textid="TT_PROVINCE_NATURAL" english="Rightful owner: [text1]\n" german="Rechtmäßiger Besitzer: [text1]\n" />
+    <Row textid="TT_PROVINCE_NATURAL_ALT" english="Secondary rightful owner: [text1]\n" german="Zweiter rechtmäßiger Besitzer: [text1]\n" />
+    <Row textid="TT_SEA_ZONE" english="Sea zone" german="Seegebiet" />
+    <Row textid="TT_DIPLOMACY_HOME" english="View your realm" german="Eigenes Reich anzeigen" />
+    <Row textid="UNITNAME_RIESENTAL_POACHERS" english="Poachers" german="Wilderer" />
+    <Row textid="TT_TERRAIN_DESC_PLAINS" english="Open farmland and pasture. Battles here favour movement and clear lines of fire — little cover for either side." german="Offenes Acker- und Weideland. Kämpfe begünstigen Bewegung und freies Schussfeld — wenig Deckung für beide Seiten." />
+    <Row textid="TT_TERRAIN_DESC_HILLS" english="Rolling high ground and broken slopes. Expect harder fighting for the heights; attackers and defenders both gain from the ridges." german="Hügeliges Hochland. Mit härteren Kämpfen um die Höhen rechnen; Angreifer und Verteidiger profitieren von den Kämmen." />
+    <Row textid="TT_TERRAIN_DESC_MOUNTAIN" english="Steep rock and narrow passes. Ground is hard to cross and favours a stubborn defence; expect slow, grinding battle." german="Steiles Gestein und enge Pässe. Schwer zu durchqueren, begünstigt hartnäckige Verteidigung; mit zähem Kampf rechnen." />
+    <Row textid="TT_TERRAIN_DESC_LTFOREST" english="Woods and clearings. Trees break up charges and blunt ranged volleys; skirmishers and careful advances do well here." german="Wälder und Lichtungen. Bäume brechen Anstürme und schwächen Fernkampf; Plänkler und behutsames Vorgehen sind im Vorteil." />
+    <Row textid="TT_TERRAIN_DESC_OLDFOREST" english="Ancient, tangled woodland. Dense cover and difficult ground — ranged fire is badly hampered, and every step is contested." german="Alter, dichter Wald. Starke Deckung und schwieriges Gelände — Fernkampf leidet stark, jeder Schritt wird umkämpft." />
+    <Row textid="TT_TERRAIN_DESC_SWAMP" english="Bog and reed. Footing is treacherous and movement costly; defenders dug into the mire are hard to dig out." german="Sumpf und Schilf. Unsicherer Boden, teure Bewegung; Verteidiger im Morast sind schwer zu vertreiben." />
+    <Row textid="TT_TERRAIN_DESC_WASTELAND" english="Barren scrub and broken earth. Little shelter, harsh ground — battles tend to be exposed and unforgiving." german="Ödes Buschland und zerbrochenes Erdreich. Wenig Schutz, hartes Gelände — Kämpfe sind offen und unbarmherzig." />
+    <Row textid="TT_TERRAIN_DESC_SEA" english="Open water. Only fleets fight here; land armies have no footing." german="Offenes Wasser. Nur Flotten kämpfen hier; Landheere haben keinen Halt." />
+    <Row textid="TT_TERRAIN_DESC_RIVER" english="A broad watercourse. Crossing under fire is dangerous; the banks channel and slow any advance." german="Ein breiter Wasserlauf. Übersetzen unter Beschuss ist gefährlich; die Ufer lenken und verlangsamen jeden Vormarsch." />
+    <Row textid="TT_TERRAIN_DESC_GENERIC" english="Local ground shapes how armies move and fight. Check the field when battle is joined." german="Das örtliche Gelände prägt Bewegung und Kampf. Prüfe das Feld, wenn die Schlacht beginnt." />
     <Row textid="REVOLT_HEADER" english="Rebellion!" german="Rebellion!" />
     <Row textid="REVOLT_TEXT" english="Rebels have risen up in the province of [text1], unhappy with your rule, they intend to take the province by force." german="In der Provinz [Text1]  ist einAufstand von Rebellen, die in ihrem Unmut über Euer Herrschaftssystem  vorhaben, die Provinz mit Gewalt zu übernehmen." />
     <Row textid="REVOLT_TICKER" english="Rebellion in [text1]" german="Rebellion in [Text1]" />
@@ -5283,7 +5304,7 @@
     <Row textid="UNITDESC1117" english="If the realm has a conscience, Siege Tower are where it sends the parts that cannot afford one. Their shields move like a second wall, slow but difficult to argue with." german="" />
     <Row textid="UNITDESC1118" english="Battle teaches Saboteurs to mistrust clean uniforms, perfect plans, and young nobles who say the worst is over." german="" />
     <Row textid="UNITDESC1119" english="Rangers belong to the practical poetry of war: short orders, heavy boots, bad weather, and a problem made smaller by force." german="" />
-    <Row textid="UNITDESC1120" english="Slingers arrive with waxed bowstrings; by evening even lazy officers know where Riesental has placed its trust. They are ordinary enough until orders harden them into a weapon." german="" />
+    <Row textid="UNITDESC1120" english="Riesental's poachers know the wood-paths better than most rangers. Ordinary hunters, until the guilds put them to work." german="" />
     <Row textid="UNITDESC1121" english="In Riesental, Wayfarer are not praised for elegance. They are kept because saddle-work must be done when banners and speeches have failed." german="" />
     <Row textid="UNITDESC1122" english="Ask a veteran what Sappers are worth and he will point to the part of the map nobody wants to enter. They are ordinary enough until orders harden them into a weapon." german="" />
     <Row textid="UNITDESC1123" english="There are always traces of hammer marks on fresh timber around Ballista. Recruits notice them first; survivors learn the day has become serious." german="" />

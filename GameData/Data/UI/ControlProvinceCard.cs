@@ -89,9 +89,12 @@ namespace SovereigntyTK.UI
             // Controls with their own tooltip must not bubble: the card's (empty) tooltip would replace theirs.
             foreach (UIControl Control in GetChildren())
             {
-                if (Control == RevoltText || Control == IncomeText || Control == ResearchText) continue;
+                if (Control == RevoltText || Control == IncomeText || Control == ResearchText || Control == TerrainText
+                    || Control == FlagImage || Control == NameText) continue;
                 Control.BubbleMouseovers = true;
             }
+            FlagImage.MouseInputType = MouseInputTypes.Forced;
+            NameText.MouseInputType = MouseInputTypes.Forced;
 
             SpellImages = new List<ControlImage>();
             for (int i = 0; i < 6; i++)
@@ -215,7 +218,12 @@ namespace SovereigntyTK.UI
 
         private void UpdateBuildings(WorkingProvince Province)
         {
-            List<BuildingEffect> Built = Province.Buildings.Take(MaxBuildingSlots).ToList();
+            // Construction order is arbitrary; show lowest tier first, then by name.
+            List<BuildingEffect> Built = Province.Buildings
+                .OrderBy(b => b.Data.Tier)
+                .ThenBy(b => b.Data.DisplayName)
+                .Take(MaxBuildingSlots)
+                .ToList();
             BuildingSlotCount = Math.Min(MaxBuildingSlots, Math.Max(Built.Count, Province.CurrentEconomy));
             bool PlayerOwned = Province.OwnerRealm == Province.Game.PlayerRealm;
 
@@ -305,6 +313,9 @@ namespace SovereigntyTK.UI
             ProvinceImage.SetImageFile("Data\\Images\\HUD\\landmarks\\" + Province.ImageFile + ".png");
 
             NameText.SetTextData(GameText.CreateLocalised(Province.DisplayName));
+            List<GameText> OwnerTip = ProvinceOwnerTooltip.BuildTooltip(Province);
+            FlagImage.SetTooltip(OwnerTip);
+            NameText.SetTooltip(OwnerTip);
 
             string IconName = Province.CurrentEconomy + ".png";
             
@@ -337,9 +348,10 @@ namespace SovereigntyTK.UI
             ResearchText.SetTextData(GameText.CreateLocalised("PROVCARD_RESEARCH", Province.ResearchPoints.GetValue()));
             ResearchText.SetTooltip(ProvinceResearchTooltip.BuildTooltip(Province));
 
-            GameText Terrain = GameText.CreateLocalised("TT_UNITDEPLOY");
+            GameText Terrain = GameText.CreateLocalised("PROVCARD_TERRAIN");
             Terrain.AddChildText(GameText.CreateLocalised(Province.Terrain.DisplayName));
             TerrainText.SetTextData(Terrain);
+            TerrainText.SetTooltip(ProvinceTerrainTooltip.BuildTooltip(Province));
 
             if (Province.Description != "" && Province.Description != "0") DescriptionText.SetTextData(GetFlavourText(Province));
             else DescriptionText.SetTextData((GameText)null);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Drawing;
 using System.IO;
@@ -489,7 +490,9 @@ namespace SovereigntyTK.UI
 
         private void UpdateDate()
         {
-            GameForm.GetControlByName<ControlText>("TurnText").SetTextData(GameText.CreateFromLiteral(GameSystem.CurrentGame.TurnController.CurrentDate.Value.ToString("d MMM yyyy")));
+            // Force English month names so OS culture (e.g. Polish) does not localise the HUD date.
+            string DateText = GameSystem.CurrentGame.TurnController.CurrentDate.Value.ToString("d MMM yyyy", CultureInfo.GetCultureInfo("en-GB"));
+            GameForm.GetControlByName<ControlText>("TurnText").SetTextData(GameText.CreateFromLiteral(DateText));
             GameForm.GetControlByName<ControlText>("TurnText").SetTooltip(GameText.CreateLocalised("TT_DATE", GameSystem.CurrentGame.TurnController.TurnNumber + 1));
         }
 

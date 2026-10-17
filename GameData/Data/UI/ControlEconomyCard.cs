@@ -456,7 +456,7 @@ namespace SovereigntyTK.UI
             EconomyBG.SetTooltip(IncomeTip);
 
             int i = 0;
-            foreach (BuildingEffect Building in Province.Buildings)
+            foreach (BuildingEffect Building in Province.Buildings.OrderBy(b => b.Data.Tier).ThenBy(b => b.Data.DisplayName))
             {
                 BuildingImages[i].Visible = true;
                 BuildingImages[i].SetImageFile("Data\\Images\\HUD\\Info\\building_built.png");
