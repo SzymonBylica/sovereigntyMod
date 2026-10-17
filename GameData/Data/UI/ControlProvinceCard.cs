@@ -82,7 +82,9 @@ namespace SovereigntyTK.UI
             DescriptionText.FontName = "Trebuchet MS";
             DescriptionText.Colour = Color.FromArgb(0, 0, 0);
             DescriptionText.TextAnchor = AnchorPoints.TopLeft;
-            DescriptionText.ScrollingEnabled = true;
+            // Same class of bug as the ticker: scroll chrome at default size stretches until text/layout settles.
+            DescriptionText.AdjustTextureCoords = false;
+            DescriptionText.ScrollingEnabled = false;
             DescriptionText.AcceptMouseWheel = true;
             DescriptionText.MouseInputType = MouseInputTypes.Forced;
 
@@ -116,6 +118,7 @@ namespace SovereigntyTK.UI
                 ControlImage Icon = new ControlImage(Game);
                 Icon.MouseInputType = MouseInputTypes.Forced;
                 Icon.Visible = false;
+                Icon.SetBounds(0, 0, 1, 1, UIUnits.PixelScaled);
                 AddChild(Icon);
                 BuildingIcons.Add(Icon);
 
@@ -123,9 +126,17 @@ namespace SovereigntyTK.UI
                 Frame.MouseInputType = MouseInputTypes.None;
                 Frame.SetImageFile("Data\\Images\\HUD\\Info\\building_built.png");
                 Frame.Visible = false;
+                Frame.SetBounds(0, 0, 1, 1, UIUnits.PixelScaled);
                 AddChild(Frame);
                 BuildingFrames.Add(Frame);
             }
+
+            OnVisibleChanged += ControlProvinceCard_OnVisibleChanged;
+        }
+
+        void ControlProvinceCard_OnVisibleChanged(UIControl Control)
+        {
+            if (Visible && CurrentProvince != null) SetControlPositions();
         }
 
         private ControlText CreateStatText()
@@ -175,27 +186,47 @@ namespace SovereigntyTK.UI
 
             float W = Sprite.Bounds.Width;
             float H = Sprite.Bounds.Height;
+            // After load the card can briefly report 0-size; applying slots then leaves icons at default stretch.
+            if (W < 32f || H < 32f) return;
+
             float Left = W * 0.115f;
             float Width = W * 0.792f;
             float LineH = H * 0.038f;
             float Y = H * 0.515f;
 
-            if (BuildingSlotCount > 0)
+            int Slots = Math.Max(0, Math.Min(MaxBuildingSlots, BuildingSlotCount));
+            if (Slots > 0)
             {
-                float Step = Math.Min(W * 0.125f, Width / BuildingSlotCount);
+                float Step = Math.Min(W * 0.125f, Width / Slots);
                 float SlotW = Step * 0.94f;
                 float SlotH = SlotW * (37f / 42f);
                 float RowY = H * 0.523f;
                 float X = Left;
 
-                for (int i = 0; i < BuildingSlotCount; i++)
+                for (int i = 0; i < MaxBuildingSlots; i++)
                 {
-                    BuildingIcons[i].SetBounds(X, RowY, SlotW, SlotH, UIUnits.PixelScaled);
-                    BuildingFrames[i].SetBounds(X, RowY, SlotW, SlotH, UIUnits.PixelScaled);
-                    X += Step;
+                    if (i < Slots)
+                    {
+                        BuildingIcons[i].SetBounds(X, RowY, SlotW, SlotH, UIUnits.PixelScaled);
+                        BuildingFrames[i].SetBounds(X, RowY, SlotW, SlotH, UIUnits.PixelScaled);
+                        X += Step;
+                    }
+                    else
+                    {
+                        BuildingIcons[i].SetBounds(0, 0, 1, 1, UIUnits.PixelScaled);
+                        BuildingFrames[i].SetBounds(0, 0, 1, 1, UIUnits.PixelScaled);
+                    }
                 }
 
                 Y = RowY + SlotH + H * 0.006f;
+            }
+            else
+            {
+                for (int i = 0; i < MaxBuildingSlots; i++)
+                {
+                    BuildingIcons[i].SetBounds(0, 0, 1, 1, UIUnits.PixelScaled);
+                    BuildingFrames[i].SetBounds(0, 0, 1, 1, UIUnits.PixelScaled);
+                }
             }
 
             RevoltText.SetBounds(Left, Y, Width, LineH, UIUnits.PixelScaled);
@@ -206,7 +237,8 @@ namespace SovereigntyTK.UI
             Y += LineH;
             TerrainText.SetBounds(Left, Y, Width, LineH, UIUnits.PixelScaled);
             Y += LineH + H * 0.015f;
-            DescriptionText.SetBounds(Left, Y, Width, H * 0.948f - Y, UIUnits.PixelScaled);
+            float DescH = Math.Max(LineH, H * 0.948f - Y);
+            DescriptionText.SetBounds(Left, Y, Width, DescH, UIUnits.PixelScaled);
 
             int FontSize = (int)(H * 0.383f * 0.075f);
             RevoltText.SetFontSize(FontSize, UIUnits.PixelScaled);
@@ -214,6 +246,28 @@ namespace SovereigntyTK.UI
             ResearchText.SetFontSize(FontSize, UIUnits.PixelScaled);
             TerrainText.SetFontSize(FontSize, UIUnits.PixelScaled);
             DescriptionText.SetFontSize(FontSize, UIUnits.PixelScaled);
+
+            UpdateDescriptionScrolling();
+        }
+
+        private void UpdateDescriptionScrolling()
+        {
+            if (DescriptionText == null) return;
+
+            bool HasText = CurrentProvince != null
+                && !string.IsNullOrEmpty(CurrentProvince.Description)
+                && CurrentProvince.Description != "0";
+
+            if (!HasText)
+            {
+                DescriptionText.ScrollingEnabled = false;
+                return;
+            }
+
+            // Only reserve scrollbar chrome when the flavour text actually overflows.
+            float TextH = DescriptionText.GetTextHeight();
+            float BoxH = DescriptionText.Sprite.Bounds.Height;
+            DescriptionText.ScrollingEnabled = TextH > BoxH + 1f;
         }
 
         private void UpdateBuildings(WorkingProvince Province)
@@ -359,6 +413,9 @@ namespace SovereigntyTK.UI
             PlagueIcon.Visible = Province.PlagueTurns > 0;
 
             UpdateSpells();
+
+            // Relayout after all content is set — catches post-load frames where the card size was not ready yet.
+            SetControlPositions();
         }
 
         void SpellEffects_SpellsChanged()
@@ -402,11 +459,10 @@ namespace SovereigntyTK.UI
 
             base.ReclaculateBounds();
 
-            if (OldBounds.Size == Sprite.Bounds.Size) return;
             if (CardBGImage == null) return;
+            if (OldBounds.Size == Sprite.Bounds.Size && OldBounds.Width >= 32f) return;
 
-            //if the size of the control has changed
-            //the internal controls need to have their positions/sizes updated to reflect this
+            // Relayout on size change, and also when growing out of a 0-size post-load frame.
             SetControlPositions();
         }
     }
