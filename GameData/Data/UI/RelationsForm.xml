@@ -23,7 +23,7 @@
 
     <control type="container">
       <name>DiplomacyContainer</name>
-      <height>60%</height>
+      <height>55%</height>
       <width>50%</width>
       <anchor>TopLeft</anchor>
     
@@ -31,7 +31,8 @@
         <name>BGImageDiplomacy</name>
         <height>400px</height>
         <width>500px</width>
-        <anchor>Middle</anchor>
+        <anchor>TopMiddle</anchor>
+        <offsety>10px</offsety>
         <imagefile>Data\Images\Hud\Purchase\unitwindow.png</imagefile>
       
         <control type="text">
@@ -164,7 +165,7 @@
 
     <control type="container">
       <name>TradeContainer</name>
-      <height>60%</height>
+      <height>55%</height>
       <width>50%</width>
       <anchor>TopRight</anchor>
     
@@ -172,7 +173,8 @@
         <name>BGImageTrade</name>
         <height>400px</height>
         <width>500px</width>
-        <anchor>Middle</anchor>
+        <anchor>TopMiddle</anchor>
+        <offsety>10px</offsety>
         <imagefile>Data\Images\Hud\Purchase\unitwindow.png</imagefile>
       
         <control type="text">
@@ -255,23 +257,23 @@
 
     <control type="container">
       <name>AgentsContainer</name>
-      <height>40%</height>
-      <width>100%</width>
-      <anchor>BottomMiddle</anchor>
+      <height>45%</height>
+      <width>50%</width>
+      <anchor>BottomRight</anchor>
     
       <control type="image">
         <name>BGImageAgents</name>
-        <height>250px</height>
-        <width>1000px</width>
+        <height>340px</height>
+        <width>500px</width>
         <anchor>Middle</anchor>
-        <imagefile>Data\Images\Hud\Purchase\unitwindow_wide.png</imagefile>
+        <imagefile>Data\Images\Hud\Purchase\unitwindow.png</imagefile>
       
         <control type="text">
           <fontname>Trebuchet MS</fontname>
           <fontcolour>255,238,161</fontcolour>
           <fontsize>18px</fontsize>
-          <width>1000px</width>
-          <height>50px</height>
+          <width>500px</width>
+          <height>32px</height>
           <bold>true</bold>
           <text>COVERTTITLETEXT</text>
           <textanchor>Middle</textanchor>
@@ -281,8 +283,8 @@
           <name>AgentBG1</name>
           <width>230px</width>
           <height>90px</height>
-          <offsetx>10px</offsetx>
-          <offsety>40px</offsety>
+          <offsetx>15px</offsetx>
+          <offsety>34px</offsety>
           <imagefile>Data\Images\Hud\bg.png</imagefile>
         </control>  
         
@@ -290,8 +292,8 @@
           <name>AgentBG2</name>
           <width>230px</width>
           <height>90px</height>
-          <offsetx>260px</offsetx>
-          <offsety>40px</offsety>
+          <offsetx>255px</offsetx>
+          <offsety>34px</offsety>
           <imagefile>Data\Images\Hud\bg.png</imagefile>
         </control>  
             
@@ -299,8 +301,8 @@
           <name>AgentBG3</name>
           <width>230px</width>
           <height>90px</height>
-          <offsetx>510px</offsetx>
-          <offsety>40px</offsety>
+          <offsetx>15px</offsetx>
+          <offsety>132px</offsety>
           <imagefile>Data\Images\Hud\bg.png</imagefile>
         </control>  
             
@@ -308,8 +310,8 @@
           <name>AgentBG4</name>
           <width>230px</width>
           <height>90px</height>
-          <offsetx>760px</offsetx>
-          <offsety>40px</offsety>
+          <offsetx>255px</offsetx>
+          <offsety>132px</offsety>
           <imagefile>Data\Images\Hud\bg.png</imagefile>
         </control>  
         
@@ -317,8 +319,8 @@
           <name>AgentBG5</name>
           <width>230px</width>
           <height>90px</height>
-          <offsetx>10px</offsetx>
-          <offsety>140px</offsety>
+          <offsetx>15px</offsetx>
+          <offsety>230px</offsety>
           <imagefile>Data\Images\Hud\bg.png</imagefile>
         </control>  
         
@@ -326,8 +328,8 @@
           <name>AgentBG6</name>
           <width>230px</width>
           <height>90px</height>
-          <offsetx>260px</offsetx>
-          <offsety>140px</offsety>
+          <offsetx>255px</offsetx>
+          <offsety>230px</offsety>
           <imagefile>Data\Images\Hud\bg.png</imagefile>
         </control>  
             
@@ -335,8 +337,9 @@
           <name>AgentBG7</name>
           <width>230px</width>
           <height>90px</height>
-          <offsetx>510px</offsetx>
-          <offsety>140px</offsety>
+          <offsetx>15px</offsetx>
+          <offsety>230px</offsety>
+          <visible>false</visible>
           <imagefile>Data\Images\Hud\bg.png</imagefile>
         </control>  
             
@@ -344,8 +347,9 @@
           <name>AgentBG8</name>
           <width>230px</width>
           <height>90px</height>
-          <offsetx>760px</offsetx>
-          <offsety>140px</offsety>
+          <offsetx>255px</offsetx>
+          <offsety>230px</offsety>
+          <visible>false</visible>
           <imagefile>Data\Images\Hud\bg.png</imagefile>
         </control>
 
@@ -459,12 +463,12 @@
 
   <control type="container">
       <name>RealmSelectContainer</name>
-      <width>250px</width>
-      <height>600px</height>
+      <width>220px</width>
+      <height>620px</height>
       <control type="image">
         <name>TradeRealmDropdown</name>
-        <width>250px</width>
-        <height>30px</height>
+        <width>220px</width>
+        <height>28px</height>
         <forcemouse>true</forcemouse>
         <imagefile>Data\Images\HUD\diplomacy_panel_top.png</imagefile>
         
@@ -472,30 +476,28 @@
           <name>TradeOfferRealmFlag</name>
           <width>20px</width>
           <height>20px</height>
-          <offsetx>10px</offsetx>
-          <offsety>5px</offsety>
+          <offsetx>8px</offsetx>
+          <offsety>4px</offsety>
         </control>
         
         <control type="text">
           <name>TradeOfferRealmText</name>
-          <width>210px</width>
-          <height>30px</height>
+          <width>180px</width>
+          <height>28px</height>
           <fontname>Trebuchet MS</fontname>
-          <fontsize>18px</fontsize>
+          <fontsize>16px</fontsize>
           <fontcolour>255,238,161</fontcolour>
           <textanchor>Left</textanchor>
           <bold>true</bold>
           <wordwrap>true</wordwrap>
-          <ignoremouse>false</ignoremouse>
-          <forcemouse>true</forcemouse>
-          <onclick>TradeOfferRealmsClick</onclick>
           <anchor>TopLeft</anchor>
-          <offsetx>36px</offsetx>
+          <offsetx>34px</offsetx>
         </control>
         <control type="button">
           <name>TradeOfferRealmButton</name>
           <width>24px</width>
           <height>24px</height>
+          <visible>false</visible>
           <imgnormal>Data\Images\HUD\Economy\arrow_down_normal.png</imgnormal>
           <imghigh>Data\Images\HUD\Economy\arrow_down_mouseover.png</imghigh>
           <imgpress>Data\Images\HUD\Economy\arrow_down_pressed.png</imgpress>
@@ -509,29 +511,29 @@
       </control>
       <control type="image">
         <name>TradeOfferRealmsBG</name>
-        <width>250px</width>
-        <height>550px</height>
+        <width>220px</width>
+        <height>580px</height>
         <forcemouse>true</forcemouse>
-        <visible>false</visible>
+        <visible>true</visible>
         <imagefile>Data\Images\HUD\bg_dark.png</imagefile>
         <control type="list" itemtype="SovereigntyTK.Game.ActiveGameData.WorkingRealm">
           <name>TradeOfferRealmList</name>
           <fontname>Trebuchet MS</fontname>
           <fontcolour>255,238,161</fontcolour>
-          <itemcount>25</itemcount>
-          <width>250px</width>
-          <height>550px</height>
+          <itemcount>26</itemcount>
+          <width>220px</width>
+          <height>580px</height>
           <showhighlight>true</showhighlight>
           <onitemclicked>TradeOfferRealmClicked</onitemclicked>
           <anchor>TopLeft</anchor>
         </control>
         <anchor>TopLeft</anchor>
         <offsetx>0px</offsetx>
-        <offsety>30px</offsety>
+        <offsety>28px</offsety>
       </control>
       <anchor>TopLeft</anchor>
       <offsetx>5px</offsetx>
-      <offsety>12%</offsety>
+      <offsety>11%</offsety>
     </control>
 
   <control type="image">

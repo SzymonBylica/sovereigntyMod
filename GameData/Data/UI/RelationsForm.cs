@@ -54,6 +54,8 @@ namespace SovereigntyTK.UI
             public ControlButton CancelButton;
             public ControlText TurnText;
             public ControlImage TurnBG;
+            public ControlImage FreeBG;
+            public ControlText FreeText;
             public Sovereignty Gamesystem;
             public WorkingAgent Agent;
 
@@ -67,6 +69,7 @@ namespace SovereigntyTK.UI
                 FaceImage = new ControlImage(Gamesystem);
                 FaceImage.SetBounds(0, 0, BGImage.Sprite.Bounds.Width, BGImage.Sprite.Bounds.Height, UIUnits.PixelScaled);
                 FaceImage.SetImageFile("Data\\Images\\Units\\herohire\\hero13frame.png");
+                FaceImage.MouseInputType = MouseInputTypes.Forced;
                 BGImage.AddChild(FaceImage);
 
                 FlagImage = new ControlImage(Gamesystem);
@@ -80,20 +83,43 @@ namespace SovereigntyTK.UI
                 CancelButton.OnClick += CancelButton_OnClick;
                 FaceImage.AddChild(CancelButton);
 
+                // Shared lower badge band for turn count / FREE (chin area, not forehead)
+                float BadgeY = BGImage.Sprite.Bounds.Height * 0.68f;
+                float BadgeH = BGImage.Sprite.Bounds.Height * 0.28f;
+                float BadgeW = BGImage.Sprite.Bounds.Width * 0.72f;
+
                 TurnBG = new ControlImage(Gamesystem);
-                TurnBG.SetBounds(0, BGImage.Sprite.Bounds.Height * 0.2f, BGImage.Sprite.Bounds.Width * 0.5f, BGImage.Sprite.Bounds.Height * 0.3f, UIUnits.PixelScaled);
+                TurnBG.SetBounds((BGImage.Sprite.Bounds.Width - BadgeW) * 0.5f, BadgeY, BadgeW, BadgeH, UIUnits.PixelScaled);
                 TurnBG.SetImageFile("Data\\Images\\HUD\\bg.png");
-                TurnBG.SetAnchor(AnchorPoints.BottomMiddle);
+                TurnBG.Sprite.SetAlpha(0.75f);
                 FaceImage.AddChild(TurnBG);
 
                 TurnText = new ControlText(Gamesystem);
                 TurnText.SetBounds(0, 0, TurnBG.Sprite.Bounds.Width, TurnBG.Sprite.Bounds.Height, UIUnits.PixelScaled);
-                TurnText.SetFontSize((int)(BGImage.Sprite.Bounds.Height * 0.25f), UIUnits.PixelScaled);
+                TurnText.SetFontSize((int)(BGImage.Sprite.Bounds.Height * 0.2f), UIUnits.PixelScaled);
                 TurnText.FontName = "Trebuchet MS";
                 TurnText.Bold = true;
                 TurnText.TextAnchor = AnchorPoints.Middle;
                 TurnText.Colour = Color.FromArgb(255, 238, 161);
                 TurnBG.AddChild(TurnText);
+
+                FreeBG = new ControlImage(Gamesystem);
+                FreeBG.SetBounds((BGImage.Sprite.Bounds.Width - BadgeW) * 0.5f, BadgeY, BadgeW, BadgeH, UIUnits.PixelScaled);
+                FreeBG.SetImageFile("Data\\Images\\HUD\\bg.png");
+                FreeBG.MouseInputType = MouseInputTypes.None;
+                FreeBG.Sprite.SetAlpha(0.75f);
+                FaceImage.AddChild(FreeBG);
+
+                FreeText = new ControlText(Gamesystem);
+                FreeText.SetBounds(0, 0, FreeBG.Sprite.Bounds.Width, FreeBG.Sprite.Bounds.Height, UIUnits.PixelScaled);
+                FreeText.SetFontSize((int)(BGImage.Sprite.Bounds.Height * 0.18f), UIUnits.PixelScaled);
+                FreeText.FontName = "Trebuchet MS";
+                FreeText.Bold = true;
+                FreeText.TextAnchor = AnchorPoints.Middle;
+                FreeText.Colour = Color.FromArgb(180, 255, 180);
+                FreeText.SetTextData(GameText.CreateFromLiteral("FREE"));
+                FreeText.MouseInputType = MouseInputTypes.None;
+                FreeBG.AddChild(FreeText);
             }
 
             void CancelButton_OnClick(UIControl Control)
@@ -113,13 +139,22 @@ namespace SovereigntyTK.UI
 
                 BGImage.Visible = true;
 
-                FlagImage.SetImageFile("Data\\Images\\HUD\\Flags\\" + Agent.HostRealm.FlagFilename + ".png");
-
                 int Turns = Agent.GetTurnsToHome();
+                bool IsFree = Turns == 0 && Agent.HostRealm == Agent.OwnerRealm;
+
                 CancelButton.Visible = true;
                 TurnBG.Visible = true;
+                FreeBG.Visible = false;
+                FlagImage.Visible = true;
+                FlagImage.SetImageFile("Data\\Images\\HUD\\Flags\\" + Agent.HostRealm.FlagFilename + ".png");
 
-                if (Turns == 0 && Agent.HostRealm != Agent.OwnerRealm)
+                if (IsFree)
+                {
+                    TurnBG.Visible = false;
+                    CancelButton.Visible = false;
+                    FreeBG.Visible = true;
+                }
+                else if (Turns == 0 && Agent.HostRealm != Agent.OwnerRealm)
                 {
                     TurnText.SetTextData(GameText.CreateLocalised("FORMAT_INFINITE"));
                 }
@@ -132,6 +167,10 @@ namespace SovereigntyTK.UI
                 {
                     TurnText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", Turns));
                 }
+
+                GameText Tip = BuildAgentAssignmentTooltip(Gamesystem, Agent, IsFree);
+                FaceImage.SetTooltip(Tip);
+                BGImage.SetTooltip(Tip);
             }
         }
 
@@ -155,14 +194,21 @@ namespace SovereigntyTK.UI
                 this.GameSystem = GameSystem;
                 this.BGImage = BGImage;
 
+                float BarH = Math.Max(16f, BGImage.Sprite.Bounds.Height * 0.22f);
+                // Keep icon size close to the old ~230px-wide card look (was width * 0.15 ≈ 34px).
+                float ButtonSize = Math.Min(36f, Math.Max(28f, (BGImage.Sprite.Bounds.Height - BarH) * 0.7f));
+                float ButtonGap = ButtonSize * 1.2f;
+                float ButtonsTop = BarH + Math.Max(2f, (BGImage.Sprite.Bounds.Height - BarH - ButtonSize) * 0.5f);
+                float ButtonsLeft = (BGImage.Sprite.Bounds.Width - ButtonGap * 4f - ButtonSize) * 0.5f;
+
                 BarImage = new ControlImage(GameSystem);
-                BarImage.SetBounds(0, 0, BGImage.Sprite.Bounds.Width, BGImage.Sprite.Bounds.Height * 0.20f, UIUnits.PixelScaled);
+                BarImage.SetBounds(0, 0, BGImage.Sprite.Bounds.Width, BarH, UIUnits.PixelScaled);
                 BarImage.SetImageFile("Data\\Images\\HUD\\listselect.png");
                 BGImage.AddChild(BarImage);
 
                 TitleText = new ControlText(GameSystem);
-                TitleText.SetBounds(BarImage.Sprite.Bounds.Width * 0.01f, 0, BarImage.Sprite.Bounds.Width, BarImage.Sprite.Bounds.Height, UIUnits.PixelScaled);
-                TitleText.SetFontSize((int)(BarImage.Sprite.Bounds.Height * 0.8f), UIUnits.PixelScaled);
+                TitleText.SetBounds(BarImage.Sprite.Bounds.Width * 0.01f, 0, BarImage.Sprite.Bounds.Width, BarH, UIUnits.PixelScaled);
+                TitleText.SetFontSize((int)(BarH * 0.7f), UIUnits.PixelScaled);
                 TitleText.FontName = "Trebuchet MS";
                 TitleText.Bold = true;
                 TitleText.Colour = Color.FromArgb(255, 238, 161);
@@ -170,63 +216,40 @@ namespace SovereigntyTK.UI
                 BarImage.AddChild(TitleText);
 
                 MessageText = new ControlText(GameSystem);
-                MessageText.SetBounds(0, BarImage.Sprite.Bounds.Height, BGImage.Sprite.Bounds.Width, BGImage.Sprite.Bounds.Height - BarImage.Sprite.Bounds.Height, UIUnits.PixelScaled);
-                MessageText.SetFontSize((int)(BGImage.Sprite.Bounds.Height * 0.12f), UIUnits.PixelScaled);
+                MessageText.SetBounds(0, BarH, BGImage.Sprite.Bounds.Width, BGImage.Sprite.Bounds.Height - BarH, UIUnits.PixelScaled);
+                MessageText.SetFontSize((int)Math.Max(11f, BGImage.Sprite.Bounds.Height * 0.14f), UIUnits.PixelScaled);
                 MessageText.FontName = "Trebuchet MS";
                 MessageText.Bold = true;
                 MessageText.TextAnchor = AnchorPoints.Middle;
                 MessageText.Colour = Color.FromArgb(255, 238, 161);
                 BGImage.AddChild(MessageText);
 
-                NewActionbutton1 = new ControlButton(GameSystem);
-                NewActionbutton1.SetBounds(-BGImage.Sprite.Bounds.Width * 0.40f, 0, BGImage.Sprite.Bounds.Width * 0.15f, BGImage.Sprite.Bounds.Width * 0.15f, UIUnits.PixelScaled);
-                NewActionbutton1.SetAnchor(AnchorPoints.Middle);
-                NewActionbutton1.SetImageFiles("Data\\Images\\HUD\\Info\\button_sendambassador_normal.png", "Data\\Images\\HUD\\Info\\button_sendambassador_mouseover.png", "Data\\Images\\HUD\\Info\\button_sendambassador_pressed.png");
-                NewActionbutton1.SetTooltip(GameText.CreateLocalised("TT_COVERT1"));
-                NewActionbutton1.OnMouseEnter += HandleButtonEnter;
-                NewActionbutton1.OnClick += HandleButtonClick;
-                NewActionbutton1.CustomData = (int)1;
-                BGImage.AddChild(NewActionbutton1);
+                NewActionbutton1 = CreateCovertActionButton(ButtonsLeft, ButtonsTop, ButtonSize, 1,
+                    "button_sendambassador", "TT_COVERT1");
+                NewActionbutton2 = CreateCovertActionButton(ButtonsLeft + ButtonGap, ButtonsTop, ButtonSize, 2,
+                    "button_propaganda", "TT_COVERT2");
+                NewActionbutton3 = CreateCovertActionButton(ButtonsLeft + ButtonGap * 2f, ButtonsTop, ButtonSize, 3,
+                    "button_wormtongue", "TT_COVERT3");
+                NewActionbutton4 = CreateCovertActionButton(ButtonsLeft + ButtonGap * 3f, ButtonsTop, ButtonSize, 4,
+                    "button_foreignaid", "TT_COVERT4");
+                NewActionButton5 = CreateCovertActionButton(ButtonsLeft + ButtonGap * 4f, ButtonsTop, ButtonSize, 5,
+                    "button_provocateur", "TT_COVERT5");
+            }
 
-                NewActionbutton2 = new ControlButton(GameSystem);
-                NewActionbutton2.SetBounds(-BGImage.Sprite.Bounds.Width * 0.20f, 0, BGImage.Sprite.Bounds.Width * 0.15f, BGImage.Sprite.Bounds.Width * 0.15f, UIUnits.PixelScaled);
-                NewActionbutton2.SetAnchor(AnchorPoints.Middle);
-                NewActionbutton2.SetImageFiles("Data\\Images\\HUD\\Info\\button_propaganda_normal.png", "Data\\Images\\HUD\\Info\\button_propaganda_mouseover.png", "Data\\Images\\HUD\\Info\\button_propaganda_pressed.png");
-                NewActionbutton2.SetTooltip(GameText.CreateLocalised("TT_COVERT2"));
-                NewActionbutton2.OnMouseEnter += HandleButtonEnter;
-                NewActionbutton2.OnClick += HandleButtonClick;
-                NewActionbutton2.CustomData = (int)2;
-                BGImage.AddChild(NewActionbutton2);
-
-                NewActionbutton3 = new ControlButton(GameSystem);
-                NewActionbutton3.SetBounds(0, 0, BGImage.Sprite.Bounds.Width * 0.15f, BGImage.Sprite.Bounds.Width * 0.15f, UIUnits.PixelScaled);
-                NewActionbutton3.SetAnchor(AnchorPoints.Middle);
-                NewActionbutton3.SetImageFiles("Data\\Images\\HUD\\Info\\button_wormtongue_normal.png", "Data\\Images\\HUD\\Info\\button_wormtongue_mouseover.png", "Data\\Images\\HUD\\Info\\button_wormtongue_pressed.png");
-                NewActionbutton3.SetTooltip(GameText.CreateLocalised("TT_COVERT3"));
-                NewActionbutton3.OnMouseEnter += HandleButtonEnter;
-                NewActionbutton3.OnClick += HandleButtonClick;
-                NewActionbutton3.CustomData = (int)3;
-                BGImage.AddChild(NewActionbutton3);
-
-                NewActionbutton4 = new ControlButton(GameSystem);
-                NewActionbutton4.SetBounds(BGImage.Sprite.Bounds.Width * 0.20f, 0, BGImage.Sprite.Bounds.Width * 0.15f, BGImage.Sprite.Bounds.Width * 0.15f, UIUnits.PixelScaled);
-                NewActionbutton4.SetAnchor(AnchorPoints.Middle);
-                NewActionbutton4.SetImageFiles("Data\\Images\\HUD\\Info\\button_foreignaid_normal.png", "Data\\Images\\HUD\\Info\\button_foreignaid_mouseover.png", "Data\\Images\\HUD\\Info\\button_foreignaid_pressed.png");
-                NewActionbutton4.SetTooltip(GameText.CreateLocalised("TT_COVERT4"));
-                NewActionbutton4.OnMouseEnter += HandleButtonEnter;
-                NewActionbutton4.OnClick += HandleButtonClick;
-                NewActionbutton4.CustomData = (int)4;
-                BGImage.AddChild(NewActionbutton4);
-
-                NewActionButton5 = new ControlButton(GameSystem);
-                NewActionButton5.SetBounds(BGImage.Sprite.Bounds.Width * 0.40f, 0, BGImage.Sprite.Bounds.Width * 0.15f, BGImage.Sprite.Bounds.Width * 0.15f, UIUnits.PixelScaled);
-                NewActionButton5.SetAnchor(AnchorPoints.Middle);
-                NewActionButton5.SetImageFiles("Data\\Images\\HUD\\Info\\button_provocateur_normal.png", "Data\\Images\\HUD\\Info\\button_provocateur_mouseover.png", "Data\\Images\\HUD\\Info\\button_provocateur_pressed.png");
-                NewActionButton5.SetTooltip(GameText.CreateLocalised("TT_COVERT5"));
-                NewActionButton5.OnMouseEnter += HandleButtonEnter;
-                NewActionButton5.OnClick += HandleButtonClick;
-                NewActionButton5.CustomData = (int)5;
-                BGImage.AddChild(NewActionButton5);
+            private ControlButton CreateCovertActionButton(float X, float Y, float Size, int Id, string ImageBase, string TooltipKey)
+            {
+                ControlButton Button = new ControlButton(GameSystem);
+                Button.SetBounds(X, Y, Size, Size, UIUnits.PixelScaled);
+                Button.SetImageFiles(
+                    "Data\\Images\\HUD\\Info\\" + ImageBase + "_normal.png",
+                    "Data\\Images\\HUD\\Info\\" + ImageBase + "_mouseover.png",
+                    "Data\\Images\\HUD\\Info\\" + ImageBase + "_pressed.png");
+                Button.SetTooltip(GameText.CreateLocalised(TooltipKey));
+                Button.OnMouseEnter += HandleButtonEnter;
+                Button.OnClick += HandleButtonClick;
+                Button.CustomData = Id;
+                BGImage.AddChild(Button);
+                return Button;
             }
 
             private void HandleButtonClick(UIControl Control)
@@ -295,36 +318,39 @@ namespace SovereigntyTK.UI
                 this.GameSystem = GameSystem;
                 this.BGImage = BGImage;
 
+                float BarH = Math.Max(18f, BGImage.Sprite.Bounds.Height * 0.28f);
+
                 BarImage = new ControlImage(GameSystem);
-                BarImage.SetBounds(0, 0, BGImage.Sprite.Bounds.Width, BGImage.Sprite.Bounds.Height * 0.20f, UIUnits.PixelScaled);
+                BarImage.SetBounds(0, 0, BGImage.Sprite.Bounds.Width, BarH, UIUnits.PixelScaled);
                 BarImage.SetImageFile("Data\\Images\\HUD\\listselect.png");
                 BGImage.AddChild(BarImage);
 
                 TitleText = new ControlText(GameSystem);
-                TitleText.SetBounds(BarImage.Sprite.Bounds.Width * 0.01f, 0, BarImage.Sprite.Bounds.Width, BarImage.Sprite.Bounds.Height, UIUnits.PixelScaled);
-                TitleText.SetFontSize((int)(BarImage.Sprite.Bounds.Height * 0.8f), UIUnits.PixelScaled);
+                TitleText.SetBounds(BarImage.Sprite.Bounds.Width * 0.02f, 0, BarImage.Sprite.Bounds.Width * 0.55f, BarH, UIUnits.PixelScaled);
+                TitleText.SetFontSize((int)(BarH * 0.55f), UIUnits.PixelScaled);
                 TitleText.FontName = "Trebuchet MS";
                 TitleText.Bold = true;
-                TitleText.SetAnchor(AnchorPoints.TopLeft);
+                TitleText.TextAnchor = AnchorPoints.Left;
                 TitleText.Colour = Color.FromArgb(255, 238, 161);
                 BarImage.AddChild(TitleText);
 
                 MessageText = new ControlText(GameSystem);
-                MessageText.SetBounds(0, BarImage.Sprite.Bounds.Height, BGImage.Sprite.Bounds.Width, BGImage.Sprite.Bounds.Height - BarImage.Sprite.Bounds.Height, UIUnits.PixelScaled);
-                MessageText.SetFontSize((int)(BGImage.Sprite.Bounds.Height * 0.12f), UIUnits.PixelScaled);
+                MessageText.SetBounds(4f, BarH + 2f, BGImage.Sprite.Bounds.Width - 8f, BGImage.Sprite.Bounds.Height - BarH - 4f, UIUnits.PixelScaled);
+                MessageText.SetFontSize((int)Math.Max(10f, BGImage.Sprite.Bounds.Height * 0.14f), UIUnits.PixelScaled);
                 MessageText.FontName = "Trebuchet MS";
                 MessageText.Bold = true;
-                MessageText.SetAnchor(AnchorPoints.TopLeft);
+                MessageText.TextAnchor = AnchorPoints.TopLeft;
                 MessageText.Colour = Color.FromArgb(255, 238, 161);
-                BarImage.AddChild(MessageText);
+                BGImage.AddChild(MessageText);
 
+                float IconSize = BarH * 0.85f;
                 FlagImage = new ControlImage(GameSystem);
-                FlagImage.SetBounds(BarImage.Sprite.Bounds.Height * 1.1f, 0, BarImage.Sprite.Bounds.Height, BarImage.Sprite.Bounds.Height, UIUnits.PixelScaled);
+                FlagImage.SetBounds(IconSize * 1.15f, (BarH - IconSize) * 0.5f, IconSize, IconSize, UIUnits.PixelScaled);
                 FlagImage.SetAnchor(AnchorPoints.TopRight);
                 BarImage.AddChild(FlagImage);
 
                 CancelButton = new ControlButton(GameSystem);
-                CancelButton.SetBounds(0, 0, BarImage.Sprite.Bounds.Height, BarImage.Sprite.Bounds.Height, UIUnits.PixelScaled);
+                CancelButton.SetBounds(2f, (BarH - IconSize) * 0.5f, IconSize, IconSize, UIUnits.PixelScaled);
                 CancelButton.SetAnchor(AnchorPoints.TopRight);
                 CancelButton.SetImageFiles("Data\\Images\\HUD\\purchase\\cancel_normal.png", "Data\\Images\\HUD\\purchase\\cancel_mouseover.png", "Data\\Images\\HUD\\purchase\\cancel_pressed.png");
                 CancelButton.OnClick += CancelButton_OnClick;
@@ -506,7 +532,9 @@ namespace SovereigntyTK.UI
 
             RealmList = GameForm.GetControlByName<ControlList<WorkingRealm>>("TradeOfferRealmList");
             RealmList.ManualUpdate = true;
+            RealmList.SelectionEnabled = true;
             RealmList.OnListItemUpdated += RealmList_OnListItemUpdated;
+            GameForm.GetControlByName<ControlImage>("TradeOfferRealmsBG").Visible = true;
             
             CovertList = GameForm.GetControlByName<ControlList<WorkingRealm>>("CovertTargetsList");
             CovertList.ManualUpdate = true;
@@ -565,7 +593,7 @@ namespace SovereigntyTK.UI
             NewAgentBox.OnButtonClicked += NewAgentBox_OnButtonClicked;
 
             ActiveAgentBoxes = new List<ActiveAgentBoxData>();
-            for (int i = 2; i <= 8; i++)
+            for (int i = 2; i <= 6; i++)
             {
                 ActiveAgentBoxData Data = new ActiveAgentBoxData(GameSystem, GameForm.GetControlByName<ControlImage>("AgentBG" + i));
                 Data.OnAgentCancel += Data_OnAgentCancel;
@@ -1294,6 +1322,8 @@ namespace SovereigntyTK.UI
             
             GameForm.GetControlByName<ControlText>("TradeOfferRealmText").SetTextData(Text);
             GameForm.GetControlByName<ControlImage>("TradeOfferRealmFlag").SetImageFile("Data\\Images\\HUD\\flags\\" + DiplomacyRealm.FlagFilename + ".png");
+            GameForm.GetControlByName<ControlImage>("TradeOfferRealmsBG").Visible = true;
+            SelectRealmInList(DiplomacyRealm);
 
             WorkingRealm Player = GameSystem.CurrentGame.PlayerRealm;
             if (Player != null)
@@ -1312,11 +1342,23 @@ namespace SovereigntyTK.UI
             UpdateAgentsOverview();
         }
 
+        private void SelectRealmInList(WorkingRealm Realm)
+        {
+            if (RealmList == null || Realm == null) return;
+            for (int i = 0; i < RealmList.Items.Count; i++)
+            {
+                if (RealmList.Items[i].Data == Realm)
+                {
+                    RealmList.SetSelectedIndex(i);
+                    return;
+                }
+            }
+        }
+
         public void PlayerRealmHomeClick(UIControl Control)
         {
             if (GameSystem.UIActionAllowed("RelationsRealmChange") == false) return;
 
-            GameForm.GetControlByName<ControlImage>("TradeOfferRealmsBG").Visible = false;
             DiplomacyRealm = GameSystem.CurrentGame.PlayerRealm;
             UpdateAll();
             GameSystem.FireEvent("DiplomacyRealmChanged", DiplomacyRealm);
@@ -1632,6 +1674,7 @@ namespace SovereigntyTK.UI
 
                         TreatyOfferButton.Visible = GameSystem.CurrentGame.AllianceController.TreatyIsPossible(GameSystem.CurrentGame.PlayerRealm, DiplomacyRealm, TreatyTypes.Alliance);
                         TreatyOfferText.SetTextData(GameText.CreateLocalised("OFFERALLIANCE"));
+                        TreatyOfferButton.SetTooltip(GameText.CreateLocalised("OFFERALLIANCE"));
 
                         break;
                     }
@@ -1642,6 +1685,7 @@ namespace SovereigntyTK.UI
 
                         TreatyOfferButton.Visible = GameSystem.CurrentGame.AllianceController.TreatyIsPossible(GameSystem.CurrentGame.PlayerRealm, DiplomacyRealm, TreatyTypes.MutualDefence);
                         TreatyOfferText.SetTextData(GameText.CreateLocalised("OFFERDEFENCE"));
+                        TreatyOfferButton.SetTooltip(GameText.CreateLocalised("OFFERDEFENCE"));
 
                         break;
                     }
@@ -1659,6 +1703,7 @@ namespace SovereigntyTK.UI
 
                         TreatyOfferButton.Visible = GameSystem.CurrentGame.AllianceController.TreatyIsPossible(GameSystem.CurrentGame.PlayerRealm, DiplomacyRealm, TreatyTypes.NonAggression);
                         TreatyOfferText.SetTextData(GameText.CreateLocalised("OFFERNAP"));
+                        TreatyOfferButton.SetTooltip(GameText.CreateLocalised("OFFERNAP"));
 
                         break;
                     }
@@ -1668,10 +1713,50 @@ namespace SovereigntyTK.UI
 
                         TreatyOfferButton.Visible = true;
                         TreatyOfferText.SetTextData(GameText.CreateLocalised("OFFERPEACE"));
+                        TreatyOfferButton.SetTooltip(GameText.CreateFromLiteral(BuildPeaceAcceptanceTooltip(DiplomacyRealm)));
 
                         break;
                     }
             }
+        }
+
+        private string BuildPeaceAcceptanceTooltip(WorkingRealm Realm)
+        {
+            if (Realm == null || Realm.AIPlayer == null)
+            {
+                return "Offer peace";
+            }
+
+            WorkingRealm Player = GameSystem.CurrentGame.PlayerRealm;
+            StringBuilder Builder = new StringBuilder();
+            Builder.AppendLine("Peace acceptance");
+
+            try
+            {
+                int Desire = Realm.AIPlayer.WarManager.GetPeaceDesire(Player);
+                int Threshold = -5 - Realm.Traits[AITraits.Diplomat] + Realm.Traits[AITraits.Warmonger];
+                int RelationTime = Realm.DiplomacyManager.GetRelationTime(Player);
+
+                Builder.AppendLine(string.Format("Desire: {0} (need >= {1})", Desire > 0 ? "+" + Desire : Desire.ToString(), Threshold));
+                if (RelationTime < 5)
+                {
+                    Builder.AppendLine(string.Format("Too early: {0} turn(s) left", 5 - RelationTime));
+                }
+                else if (Desire < Threshold)
+                {
+                    Builder.AppendLine("Below threshold — will hard-refuse");
+                }
+                else
+                {
+                    Builder.AppendLine("Threshold met — open trade table for details");
+                }
+            }
+            catch
+            {
+                Builder.AppendLine("Open trade table for details");
+            }
+
+            return Builder.ToString().TrimEnd();
         }
 
         public void TreatyBreakClick(UIControl Control)
@@ -1803,15 +1888,15 @@ namespace SovereigntyTK.UI
 
         public void TradeOfferRealmsClick(UIControl Control)
         {
+            // Realm list is always visible; keep handler for compatibility.
             if (GameSystem.UIActionAllowed("RelationsRealmChange") == false) return;
-
-            ControlImage BG = GameForm.GetControlByName<ControlImage>("TradeOfferRealmsBG");
-            BG.Visible = !BG.Visible;
+            GameForm.GetControlByName<ControlImage>("TradeOfferRealmsBG").Visible = true;
         }
 
         public void TradeOfferRealmClicked(UIControl Control)
         {
-            GameForm.GetControlByName<ControlImage>("TradeOfferRealmsBG").Visible = false;
+            if (GameSystem.UIActionAllowed("RelationsRealmChange") == false) return;
+            if (RealmList.ClickedItem == null) return;
 
             WorkingRealm Realm = RealmList.ClickedItem.Data;
             if (Realm != null)
@@ -1820,6 +1905,65 @@ namespace SovereigntyTK.UI
                 UpdateAll();
                 GameSystem.FireEvent("DiplomacyRealmChanged", DiplomacyRealm);
             }
+        }
+
+        private static GameText BuildAgentAssignmentTooltip(Sovereignty Game, WorkingAgent Agent, bool IsFree)
+        {
+            if (Agent == null) return GameText.CreateFromLiteral("");
+
+            if (IsFree)
+            {
+                return GameText.CreateFromLiteral("Free\nAvailable for a new assignment.");
+            }
+
+            StringBuilder Builder = new StringBuilder();
+            string Role = "Diplomat";
+            string Mission = "";
+            string Status = Agent.TurnsLeft > 0 ? "Travelling" : "On assignment";
+            string Location = GameText.CreateLocalised(Agent.HostRealm.DisplayName).GetActualText(Game);
+
+            switch (Agent.CurrentMode)
+            {
+                case AgentModes.CarryTradeOffer:
+                    Role = "Trader";
+                    Mission = "Delivering a trade offer";
+                    Status = "Travelling";
+                    break;
+                case AgentModes.DamageForeignRelations:
+                    Role = "Provocateur";
+                    Mission = "Damaging relations with " + GameText.CreateLocalised(Agent.TargetRealm.DisplayName).GetActualText(Game);
+                    break;
+                case AgentModes.ImproveForeignRelations:
+                    Role = "Emissary";
+                    Mission = "Improving relations with " + GameText.CreateLocalised(Agent.TargetRealm.DisplayName).GetActualText(Game);
+                    break;
+                case AgentModes.ImproveRelations:
+                    Role = "Diplomat";
+                    Mission = "Improving relations with " + Location;
+                    break;
+                case AgentModes.Military:
+                    Role = "Spy";
+                    Mission = "Gathering military intelligence";
+                    break;
+                case AgentModes.Incite:
+                    Role = "Provocateur";
+                    Mission = "Inciting unrest";
+                    break;
+                case AgentModes.Idle:
+                    Role = "Diplomat";
+                    Mission = Agent.TurnsLeft > 0 ? "Returning home" : "Idle";
+                    Status = Agent.TurnsLeft > 0 ? "Travelling" : "Idle";
+                    break;
+            }
+
+            Builder.AppendLine(Role);
+            Builder.AppendLine("Location: " + Location);
+            if (!string.IsNullOrEmpty(Mission)) Builder.AppendLine("Mission: " + Mission);
+            Builder.AppendLine("Status: " + Status);
+            if (Agent.TurnsLeft > 0) Builder.Append("Turns left: " + Agent.TurnsLeft);
+            else if (Agent.HostRealm != Agent.OwnerRealm) Builder.Append("Turns left: ∞");
+
+            return GameText.CreateFromLiteral(Builder.ToString().TrimEnd());
         }
 
         private void ResetRealmList()
