@@ -19,6 +19,8 @@ Bug Fixes
 
 4. Fixed a crash on return to main menu.
 
+5. Fixed a crash when AI uses hero powers.
+
 Strategy Map
 
 1. Added fog of war to the strategy layer. Armies with scouts have partial information about armies in bordering provinces.
@@ -72,3 +74,5 @@ Interface
 11. Tactical battle tiles always show health and morale bars, not only when damaged.
 
 12. The top-bar date always uses English month names, independent of the OS language.
+
+13. Added icon for unit upkeep to unit cards.
