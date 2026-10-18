@@ -1373,7 +1373,9 @@ namespace SovereigntyTK.Game.Battle
 			}
 			while (i < num)
 			{
-				Unit.GrantFlag(UnitFlag.CreateNamedFlag(this.Game.GameCore, "Shield Wall"));
+				UnitFlag shieldWall = UnitFlag.CreateNamedFlag(this.Game.GameCore, "Shield Wall");
+				shieldWall.TurnCount = 1;
+				Unit.GrantFlag(shieldWall);
 				i++;
 				this.Game.GameCore.FireEvent("ShieldWallEnabled", new object[] { Unit });
 			}

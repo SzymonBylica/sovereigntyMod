@@ -58,7 +58,11 @@
     <Row textid="UNITATTACKTOOLTIP" english="Attack: This measures a unit's ability to damage an enemy in melee range.\n\nDamage type: [text1]" german="Angriff: Dies bemißt die Schadensfähigkeit einer Einheit gegen den Feind im Nahkampf. \n\n Schadensart[Text1]" />
     <Row textid="UNITDEFENSETOOLTIP" english="Defense: This measures a unit's ability to defend against any attack." german="Angriff: Dies bemisst die Fähigkeit einer Einheit, den Feind im Nahkampf zu schädigen." />
     <Row textid="UNITRANGETOOLTIP" english="Range: This is the number of hexes across which a Unit may attack using its Ranged Attack score. A Range of 1 indicates melee-only." german="Reichweite: Dies ist die Zahl der Hexfelder worin eine Einheit berechtigt ist, mittels der Fernkampfpunktzahl anzugreifen. Eine 1 Reichweite bezeichnet nur Nahkampf." />
-    <Row textid="UNITRNGATTTOOLTIP" english="Ranged Attack: This measures a unit's ability to damage an enemy at range..\n\nDamage type: [text1]" german="&#xA;&#xA;&#xA;Fernkampf-Angriff: Dies bemißt die Schadensfähigkeit einer Einheit gegen den Feind im Fernkampf. \n\n Schadensart[Text1]" />
+    <Row textid="UNITRNGATTTOOLTIP" english="Ranged Attack: This measures a unit's ability to damage an enemy at range.\n\nDamage type: [text1]" german="Fernkampf-Angriff: Dies bemißt die Schadensfähigkeit einer Einheit gegen den Feind im Fernkampf.\n\nSchadensart: [Text1]" />
+    <Row textid="TT_CARD_RANGED_INFO" english="Ranged Attack: This measures a unit's ability to damage an enemy at range." german="Fernkampf-Angriff: Dies bemißt die Schadensfähigkeit einer Einheit gegen den Feind im Fernkampf." />
+    <Row textid="TT_CARD_RANGE" english="Range: {0}" german="Reichweite: {0}" />
+    <Row textid="TT_CARD_RANGED_DAMAGE" english="Ranged Damage: {0}" german="Fernkampfschaden: {0}" />
+    <Row textid="TT_CARD_DAMAGE_TYPE" english="Damage type: {0}" german="Schadensart: {0}" />
     <Row textid="UNITMORALETOOLTIP" english="Discipline: This measures a unit's ability to stand in the face of danger. Low Discipline Units tend to become demoralised faster." german="Disziplin: Bemessung einer Einheit angesichts von Gefahr.  Bei Einheiten mit wenig Disziplin,  setzt Zermürbung schneller ein." />
     <Row textid="UNITMORALETOOLTIP2" english="Morale: Units will lose morale when they fight, especially if they take heavy losses. Units lower morale will be more likely to break and run" german="Moral: Einheiten verlieren  bei schweren Verlusten Kampfgeist. Einheiten mit fehlendem Kampfgeist brechen eher auseinander und fliehen." />
     <Row textid="UNITHEALTOOLTIP" english="Heal: A unit will heal 10 Life for every Heal point, if it spends 1 turn out of battle." german="Heilen: Eine Einheit heilt 10 Leben für jeden Heilenpunkt, wenn sie für eine Runde aus der Schlacht ausschert." />
@@ -66,6 +70,14 @@
     <Row textid="UNITMOVESTOOLTIP" english="Moves: This is the number of hexes a Unit may move per turn on the battlefield." german="Fortbewegung: Das ist die Zahl der Hexfelder, worin sich eine Einheit per Runde auf dem Schlachtfeld bewegen darf." />
     <Row textid="UNITCOSTTOOLTIP" english="Cost: The amount of gold you will have to pay to recruit this unit." german="Kosten: Der zu bezahlende Betrag in Gold diese Einheit zu rekrutieren" />
     <Row textid="UNITUPKEEPTOOLTIP" english="Upkeep: The amount of gold this unit will cost every turn. Units not paid may disband." german="Unterhalt: Die Kosten in Gold für diese Einheit pro Runde. Nicht bezahlte Einheiten mögen sich auflösen." />
+    <Row textid="TT_UPKEEP_BASE" english="Base: {0}" german="Basis: {0}" />
+    <Row textid="TT_UPKEEP_CURRENT" english="Current: {0}" german="Aktuell: {0}" />
+    <Row textid="TT_UPKEEP_CAPITOL" english="Capital garrison: free" german="Hauptstadtgarnison: kostenlos" />
+    <Row textid="TT_UPKEEP_BONUS" english="Upkeep bonus" german="Unterhaltsbonus" />
+    <Row textid="TT_UPKEEP_ARMY" english="Army modifier" german="Armeemodifikator" />
+    <Row textid="TT_UPKEEP_OTHER" english="Other modifiers" german="Andere Modifikatoren" />
+    <Row textid="TT_UPKEEP_NONE" english="No upkeep" german="Kein Unterhalt" />
+    <Row textid="TT_UPKEEP_MODLINE" english="[text1]: [text2]" german="[Text1]: [Text2]" />
     <Row textid="UNITTIMETOOLTIP" english="Time: The number of turns until this unit is ready for deployment." german="Zeit: Die Zahl der Runden bis diese Einheit einsatzbereit ist." />
     <Row textid="DIPLOMACYTEXT" english="Diplomacy" german="Diplomatie" />
     <Row textid="DIPLOMACYTITLE" english="Diplomacy - [text1]" german="Diplomatie - [text1]" />
