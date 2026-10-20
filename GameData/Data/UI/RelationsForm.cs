@@ -1382,10 +1382,10 @@ namespace SovereigntyTK.UI
             float BH = RealmInfoBG.Sprite.Bounds.Height;
             if (BW < 10f || BH < 10f) return;
 
-            float CardX = BW * 0.03f;
-            float CardY = BH * 0.12f;
+            float CardX = BW * 0.02f;
+            float CardY = BH * 0.02f;
             // Leave margin inside the ornate border; keep left column under ~48% width.
-            float CardH = BH * 0.78f;
+            float CardH = BH * 0.96f;
             float CardW = CardH * (265f / 443f);
             float MaxCardW = BW * 0.48f;
             if (CardW > MaxCardW)
