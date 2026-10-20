@@ -350,6 +350,9 @@ namespace SovereigntyTK.UI
 
         public void DisplayUnit(WorkingUnit Unit, WorkingUnit OtherUnit, bool Carried)
         {
+            // Preview units never show Disband (also hidden again at end of this method).
+            if (Unit.ID < 0 || Unit.OwnerStack == null) DisbandButton.Visible = false;
+
             switch (Unit.OwnerRealm.Panel)
             {
                 case SovereigntyTK.Game.Data.SpellSchools.Death: CardBGImage.SetImageFile("Data\\Images\\HUD\\Battle\\deathcard_unit.png"); break;
@@ -364,7 +367,11 @@ namespace SovereigntyTK.UI
             GameText TT1 = GameText.CreateLocalised("UNITATTACKTOOLTIP");
             string DamageTypeKey = "DAMPHYS";
 
-            switch (Unit.GetDamageType())
+            DamageTypes DmgType = DamageTypes.Physical;
+            try { DmgType = Unit.GetDamageType(); }
+            catch { DmgType = DamageTypes.Physical; }
+
+            switch (DmgType)
             {
                 case DamageTypes.None:
                 case DamageTypes.Physical:
@@ -517,19 +524,19 @@ namespace SovereigntyTK.UI
             FlagImage.SetImageFile("Data\\Images\\HUD\\flags\\" + Unit.OwnerRealm.FlagFilename + ".png");
             UnitImage.SetImageFile("Data\\Images\\Units\\" + Unit.ImageFile + ".jpg");
 
-            StatAttackText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", Unit.Attack.GetValue(OtherUnit)));
-            StatDefenceText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", Unit.Defence.GetValue(OtherUnit)));
+            StatAttackText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", GetUnitStat(Unit.Attack, Unit, OtherUnit)));
+            StatDefenceText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", GetUnitStat(Unit.Defence, Unit, OtherUnit)));
             // Bow icon shows Range; melee / no ranged attack displays as 0.
             int DisplayRange = GetDisplayRange(Unit, OtherUnit);
             StatRangedText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", DisplayRange));
             StatRangeText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", DisplayRange));
 
-            StatMoveText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", Unit.MaxCombatMoves.GetValue(OtherUnit)));
-            StatInitiativeText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", Unit.Initiative.GetValue(OtherUnit)));
-            StatDisciplineText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", Unit.Discipline.GetValue(OtherUnit)));
-            StatHealText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", Unit.HealRate.GetValue(OtherUnit)));
+            StatMoveText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", GetUnitStat(Unit.MaxCombatMoves, Unit, OtherUnit)));
+            StatInitiativeText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", GetUnitStat(Unit.Initiative, Unit, OtherUnit)));
+            StatDisciplineText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", GetUnitStat(Unit.Discipline, Unit, OtherUnit)));
+            StatHealText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", GetUnitStat(Unit.HealRate, Unit, OtherUnit)));
 
-            int CurrentUpkeep = Unit.Upkeep.GetValue();
+            int CurrentUpkeep = GetUnitStat(Unit.Upkeep, Unit, null);
             StatUpkeepText.SetTextData(GameText.CreateLocalised("FORMAT_NUMBER", CurrentUpkeep));
             // 2–3 digit upkeep (e.g. Ballista ~130) must shrink or digits overlap.
             int UpkeepDigits = Math.Abs(CurrentUpkeep).ToString().Length;
@@ -646,6 +653,8 @@ namespace SovereigntyTK.UI
             if (Unit.OwnerRealm != Unit.Game.PlayerRealm) DisbandButton.Visible = false;
             if (Unit.BattleData != null) DisbandButton.Visible = false;
             if (Carried) DisbandButton.Visible = false;
+            // Preview / unstacked units (e.g. FA auxiliaries list) must never show Disband.
+            if (Unit.OwnerStack == null) DisbandButton.Visible = false;
         }
 
         public void SetUnit(WorkingUnit Unit, WorkingUnit OtherUnit)
@@ -714,11 +723,21 @@ namespace SovereigntyTK.UI
             return Text;
         }
 
+        // Preview units (e.g. FA auxiliaries) are constructed with ID -1 and are not in the
+        // game unit table. UnitStat.GetValue looks up by ID and fails — use BaseValue instead.
+        private int GetUnitStat(UnitStat Stat, WorkingUnit Unit, WorkingUnit OtherUnit)
+        {
+            if (Stat == null) return 0;
+            if (Unit != null && Unit.ID < 0) return Stat.BaseValue;
+            if (OtherUnit != null) return Stat.GetValue(OtherUnit);
+            return Stat.GetValue();
+        }
+
         private int GetDisplayRange(WorkingUnit Unit, WorkingUnit OtherUnit)
         {
-            int Range = Unit.Range.GetValue(OtherUnit);
+            int Range = GetUnitStat(Unit.Range, Unit, OtherUnit);
             // Game data treats Range 1 as melee-only; show 0 when the unit cannot shoot.
-            if (Unit.RangedAttack.GetValue(OtherUnit) <= 0 || Range <= 1)
+            if (GetUnitStat(Unit.RangedAttack, Unit, OtherUnit) <= 0 || Range <= 1)
                 return 0;
             return Range;
         }
@@ -730,7 +749,7 @@ namespace SovereigntyTK.UI
             SB.AppendLine(ResolveText(GameText.CreateLocalised("TT_CARD_RANGED_INFO")));
             SB.AppendLine();
             SB.AppendLine(ResolveText(GameText.CreateLocalised("TT_CARD_RANGE", GetDisplayRange(Unit, OtherUnit))));
-            SB.AppendLine(ResolveText(GameText.CreateLocalised("TT_CARD_RANGED_DAMAGE", Unit.RangedAttack.GetValue(OtherUnit))));
+            SB.AppendLine(ResolveText(GameText.CreateLocalised("TT_CARD_RANGED_DAMAGE", GetUnitStat(Unit.RangedAttack, Unit, OtherUnit))));
             SB.Append(ResolveText(GameText.CreateLocalised("TT_CARD_DAMAGE_TYPE", ResolveText(GameText.CreateLocalised(DamageTypeKey)))));
             return GameText.CreateFromLiteral(SB.ToString());
         }
@@ -743,7 +762,7 @@ namespace SovereigntyTK.UI
             SB.AppendLine();
 
             int Base = Unit.Upkeep.BaseValue;
-            int Current = Unit.Upkeep.GetValue();
+            int Current = GetUnitStat(Unit.Upkeep, Unit, null);
             SB.AppendLine(ResolveText(GameText.CreateLocalised("TT_UPKEEP_BASE", Base)));
 
             bool InCapitol = Unit.OwnerStack != null

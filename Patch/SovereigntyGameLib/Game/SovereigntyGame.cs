@@ -223,7 +223,11 @@ namespace SovereigntyTK.Game
 		private void HandleTickerMessage(string EventName, params object[] Args)
 		{
 			TickerMessage tickerMessage = (TickerMessage)Args[0];
-			if (tickerMessage.MessageType == TickerMessageType.Diplomacy && tickerMessage.MessageText != null && (tickerMessage.MessageText.TextName == "NEW_TREATY" || tickerMessage.MessageText.TextName == "END_TREATY") && PlayerRealm != null)
+			if (GameCore.Settings.GetBooleanSetting("FilterForeignTreatyMessages")
+				&& tickerMessage.MessageType == TickerMessageType.Diplomacy
+				&& tickerMessage.MessageText != null
+				&& (tickerMessage.MessageText.TextName == "NEW_TREATY" || tickerMessage.MessageText.TextName == "END_TREATY")
+				&& PlayerRealm != null)
 			{
 				string playerName = GameText.CreateLocalised(PlayerRealm.DisplayName, new object[0]).GetActualText(GameCore);
 				string fullText = tickerMessage.MessageText.GetActualText(GameCore);
@@ -232,6 +236,11 @@ namespace SovereigntyTK.Game
 					return;
 				}
 			}
+			if (GameCore.Settings.GetBooleanSetting("FilterForeignBattleMessages")
+				&& IsForeignBattleTickerMessage(tickerMessage))
+			{
+				return;
+			}
 			if (TickerTexts.Count == 50)
 			{
 				TickerTexts.RemoveAt(0);
@@ -239,6 +248,30 @@ namespace SovereigntyTK.Game
 			GameText gameText = GameText.CreateLocalised("FORMAT_TICKER");
 			gameText.AddChildText(tickerMessage.MessageText);
 			TickerTexts.Add(gameText);
+		}
+
+		// Battle tickers use realm .Name ("X attacks Y" / "X defeats Y").
+		private bool IsForeignBattleTickerMessage(TickerMessage tickerMessage)
+		{
+			if (tickerMessage.MessageText == null || PlayerRealm == null)
+			{
+				return false;
+			}
+			string fullText = tickerMessage.MessageText.GetActualText(GameCore);
+			if (fullText.IndexOf(" attacks ", StringComparison.Ordinal) < 0 && fullText.IndexOf(" defeats ", StringComparison.Ordinal) < 0)
+			{
+				return false;
+			}
+			if (fullText.IndexOf(PlayerRealm.Name, StringComparison.OrdinalIgnoreCase) >= 0)
+			{
+				return false;
+			}
+			string playerDisplay = GameText.CreateLocalised(PlayerRealm.DisplayName, new object[0]).GetActualText(GameCore);
+			if (!string.IsNullOrEmpty(playerDisplay) && fullText.IndexOf(playerDisplay, StringComparison.OrdinalIgnoreCase) >= 0)
+			{
+				return false;
+			}
+			return true;
 		}
 
 		private void HandleProvinceOccupierChanged(string EventName, params object[] Args)

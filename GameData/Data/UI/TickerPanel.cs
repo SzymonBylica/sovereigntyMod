@@ -18,16 +18,20 @@ namespace SovereigntyTK.UI
     public class TickerPanel: ScriptBase
     {
         const int MaxEntries = 50;
-        const int WrapChars = 46;
+        // Wide enough for typical "Non-Aggression Treaty signed between X and Y" on one line.
+        const int WrapChars = 72;
+        const int PanelWidth = 560;
+        const int LogWidth = 520;
         const string WrapIndent = "   ";
 
         static readonly Color NormalColour = Color.FromArgb(255, 238, 161);
-        static readonly Color BattleColour = Color.FromArgb(255, 255, 255);
+        // White for the filterable categories: foreign treaties + battle reports (always white when shown).
+        static readonly Color HighlightColour = Color.FromArgb(255, 255, 255);
 
         class TickerEntry
         {
             public GameText Text;
-            public bool IsBattle;
+            public bool UseHighlight;
         }
 
         class TickerRow
@@ -65,7 +69,7 @@ namespace SovereigntyTK.UI
             LogList.SelectionEnabled = false;
             LogList.OnListItemUpdated += LogList_OnListItemUpdated;
             LogList.SetVisibleItems(18);
-            LogList.SetBounds(8, 4, 360, 292, UIUnits.Pixel);
+            LogList.SetBounds(8, 4, LogWidth, 292, UIUnits.Pixel);
             LogList.Visible = false;
 
             TickerTexts = new List<TickerEntry>();
@@ -73,7 +77,7 @@ namespace SovereigntyTK.UI
 
             foreach (GameText Text in GameSystem.CurrentGame.TickerTexts)
             {
-                TickerTexts.Add(new TickerEntry { Text = Text, IsBattle = IsBattleText(Text) });
+                TickerTexts.Add(new TickerEntry { Text = Text, UseHighlight = IsHighlightText(Text) });
             }
 
             ShowCollapsed();
@@ -86,7 +90,7 @@ namespace SovereigntyTK.UI
 
         void GameSystem_OnViewportChanged()
         {
-            GameForm.SetBounds(0, 30, 400, 30, UIUnits.Pixel);
+            GameForm.SetBounds(0, 30, PanelWidth, 30, UIUnits.Pixel);
             if (IsOpen) OpenTicker();
             else CloseTicker();
         }
@@ -97,12 +101,16 @@ namespace SovereigntyTK.UI
 
             TickerMessage Msg = (TickerMessage)Args[0];
 
-            // Suppress AI-vs-AI treaty chatter (NAP / defence / alliance spam).
-            if (IsForeignTreatyMessage(Msg)) return;
+            // Suppress AI-vs-AI treaty chatter when the gameplay setting is enabled (default).
+            if (GameSystem.Settings.GetBooleanSetting("FilterForeignTreatyMessages") && IsForeignTreatyMessage(Msg)) return;
+
+            // Suppress AI-vs-AI "X attacks Y" / "X defeats Y" when enabled (off by default).
+            if (GameSystem.Settings.GetBooleanSetting("FilterForeignBattleMessages") && IsForeignBattleMessage(Msg)) return;
 
             GameText Text = GameText.CreateLocalised("FORMAT_TICKER");
             Text.AddChildText(Msg.MessageText);
-            TickerEntry Entry = new TickerEntry { Text = Text, IsBattle = IsBattleText(Msg.MessageText) };
+            // Settings only filter visibility; highlight colour is independent.
+            TickerEntry Entry = new TickerEntry { Text = Text, UseHighlight = IsHighlightText(Msg.MessageText) || IsHighlightText(Text) };
 
             lock (EntryLock)
             {
@@ -114,13 +122,40 @@ namespace SovereigntyTK.UI
             }
         }
 
-        // Battle reports ("X attacks Y", "X defeats Y") are hardcoded English literals in the engine.
-        private bool IsBattleText(GameText Text)
+        // White highlight: battle reports + treaty signed/ended (the two filterable message families).
+        private bool IsHighlightText(GameText Text)
         {
             if (Text == null) return false;
 
+            if (Text.TextName == "NEW_TREATY" || Text.TextName == "END_TREATY") return true;
+            if (ContainsBattlePhrase(Text.LiteralText)) return true;
+
             string Resolved = Text.GetActualText(GameSystem);
-            return Resolved.Contains(" attacks ") || Resolved.Contains(" defeats ");
+            if (ContainsBattlePhrase(Resolved)) return true;
+            return ContainsTreatyPhrase(Resolved);
+        }
+
+        private bool IsBattleText(GameText Text)
+        {
+            if (Text == null) return false;
+            if (ContainsBattlePhrase(Text.LiteralText)) return true;
+            return ContainsBattlePhrase(Text.GetActualText(GameSystem));
+        }
+
+        private static bool ContainsBattlePhrase(string Text)
+        {
+            if (string.IsNullOrEmpty(Text)) return false;
+            return Text.IndexOf(" attacks ", StringComparison.Ordinal) >= 0
+                || Text.IndexOf(" defeats ", StringComparison.Ordinal) >= 0;
+        }
+
+        private static bool ContainsTreatyPhrase(string Text)
+        {
+            if (string.IsNullOrEmpty(Text)) return false;
+            // NEW_TREATY / END_TREATY resolved English (and German "Abkommen").
+            return Text.IndexOf("Treaty signed between", StringComparison.OrdinalIgnoreCase) >= 0
+                || Text.IndexOf("Treaty ended between", StringComparison.OrdinalIgnoreCase) >= 0
+                || Text.IndexOf("Abkommen zwischen", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private bool IsForeignTreatyMessage(TickerMessage Msg)
@@ -135,6 +170,23 @@ namespace SovereigntyTK.UI
             string PlayerName = GameText.CreateLocalised(Player.DisplayName).GetActualText(GameSystem);
             string FullText = Msg.MessageText.GetActualText(GameSystem);
             return FullText.IndexOf(PlayerName, System.StringComparison.OrdinalIgnoreCase) < 0;
+        }
+
+        private bool IsForeignBattleMessage(TickerMessage Msg)
+        {
+            if (Msg.MessageText == null) return false;
+            if (!IsBattleText(Msg.MessageText)) return false;
+
+            WorkingRealm Player = GameSystem.CurrentGame.PlayerRealm;
+            if (Player == null) return true;
+
+            string FullText = Msg.MessageText.GetActualText(GameSystem);
+            if (FullText.IndexOf(Player.Name, System.StringComparison.OrdinalIgnoreCase) >= 0) return false;
+
+            string PlayerDisplay = GameText.CreateLocalised(Player.DisplayName).GetActualText(GameSystem);
+            if (!string.IsNullOrEmpty(PlayerDisplay) && FullText.IndexOf(PlayerDisplay, System.StringComparison.OrdinalIgnoreCase) >= 0) return false;
+
+            return true;
         }
 
         public override void Dispose()
@@ -216,8 +268,9 @@ namespace SovereigntyTK.UI
         private void ShowEntry(TickerEntry Entry)
         {
             Ticker.Visible = true;
-            Ticker.Colour = Entry.IsBattle ? BattleColour : NormalColour;
             Ticker.SetTextData(Entry.Text);
+            // SetTextData can reset colour from the control default — apply after.
+            Ticker.Colour = Entry.UseHighlight ? HighlightColour : NormalColour;
         }
 
         public void OpenTicker()
@@ -233,7 +286,7 @@ namespace SovereigntyTK.UI
                 IsOpen = true;
             }
 
-            GameForm.SetSize(400, 300, UIUnits.Pixel);
+            GameForm.SetSize(PanelWidth, 300, UIUnits.Pixel);
             Ticker.Visible = false;
             LogList.Visible = true;
             RebuildLog();
@@ -255,7 +308,7 @@ namespace SovereigntyTK.UI
                 if (TickerTexts.Count > 0) Last = TickerTexts[TickerTexts.Count - 1];
             }
 
-            GameForm.SetSize(400, 30, UIUnits.Pixel);
+            GameForm.SetSize(PanelWidth, 30, UIUnits.Pixel);
             LogList.Visible = false;
 
             if (Last == null) Ticker.Visible = false;
@@ -274,7 +327,7 @@ namespace SovereigntyTK.UI
             LogList.ClearItems();
             foreach (TickerEntry Entry in Snapshot)
             {
-                Color Colour = Entry.IsBattle ? BattleColour : NormalColour;
+                Color Colour = Entry.UseHighlight ? HighlightColour : NormalColour;
                 foreach (string Line in WrapText(Entry.Text.GetActualText(GameSystem)))
                 {
                     LogList.AddItem(new TickerRow { Text = Line, Colour = Colour });
@@ -291,8 +344,9 @@ namespace SovereigntyTK.UI
             Line.FontName = "Trebuchet MS";
             Line.Bold = true;
             Line.TextAnchor = AnchorPoints.Left;
-            Line.Colour = Item.Data.Colour;
             Line.SetTextData(GameText.CreateFromLiteral(Item.Data.Text));
+            // SetTextData can reset colour from the control default — apply after.
+            Line.Colour = Item.Data.Colour;
             Item.Container.AddChild(Line);
         }
 

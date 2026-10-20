@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <Table name="GameText">
     <Row textid="LANGUAGENAME" english="English" german="Deutsch" />
@@ -4661,6 +4661,12 @@
     <Row textid="TT_UNITRANK" english="Unit Rank: [text1]" german="Rang der Einheit" />
     <Row textid="TT_HEALTH" english="Health: {0}\nWhen the helath of a unit reaches 0, the unit will be killed and removed from the game." german="Gesundheitszustand: {0}\nWenn der Gesundheitszustand einer Einheit 0 erreicht, wird die Einheit vernichtet und vom Spiel entfernt." />
     <Row textid="TT_MORALE" english="Morale: {0}\nUnits with low morale are more likely to run away in battle when they take damage." german="Moral: {0}\nEinheiten mit niedriger Moral tendieren eher dazu, sich  bei Verlusten aus dem Kampf zurückzuziehen" />
+    <Row textid="REALMINFO_TITLE" english="Realm Info" german="Reichsinfo" />
+    <Row textid="REALMINFO_AUX_TITLE" english="Auxiliaries" german="Hilfstruppen" />
+    <Row textid="REALMINFO_AUX_NONE" english="No auxiliary units" german="Keine Hilfseinheiten" />
+    <Row textid="REALMINFO_AUX_ALLIED" english="Recruitable while allied" german="Rekrutierbar während des Bündnisses" />
+    <Row textid="REALMINFO_AUX_NOT_ALLIED" english="Available if you ally with this realm" german="Verfügbar, falls du dich mit diesem Reich verbündest" />
+    <Row textid="REALMINFO_AUX_SELF" english="These units can be lent to allies" german="Diese Einheiten können an Verbündete verliehen werden" />
     <Row textid="TT_REALMHERO" english="Number of Heroes fielded by this realm." german="Die von diesem Reich aufgestellte  Zahl der Helden" />
     <Row textid="TT_REALMAGENT" english="Number of Agents available to this realm (Available/Total)" german="Die diesem Reich verfügbare Zahl von Agenten (Verfügbar/Total)" />
     <Row textid="TT_REALMALLIES" english="Number of Allies this realm has (Current/Maximum)" german="Zahl der diesem Reich Verbündeten (Gegenwärtig/Maximal)" />
@@ -4951,6 +4957,8 @@
     <Row textid="SETTING_SOUNDVOL" english="Sound Volume" german="Lautstärke" />
     <Row textid="SETTING_MUSICVOL" english="Music Volume" german="Musiklautstärke" />
     <Row textid="SETTING_TIPSENABLED" english="Enable Tips" german="Aktiviere Hinweise" />
+    <Row textid="SETTING_FILTERFOREIGNTREATIES" english="Filter Foreign Treaties" german="Fremde Verträge ausblenden" />
+    <Row textid="SETTING_FILTERFOREIGNBATTLES" english="Filter Foreign Battles" german="Fremde Schlachten ausblenden" />
     <Row textid="SETTING_ALLYBATTLE" english="View Ally Battles" german=" Ansicht der Kämpfe v. Verbündeten" />
     <Row textid="SETTING_ENEMYBATTLE" english="View Enemy Battles" german=" Ansicht der Kämpfe v. Feinden" />
     <Row textid="SETTING_REBELBATTLE" english="View Rebel Battles" german="Ansicht der Kämpfe v. Rebellen" />
@@ -4984,6 +4992,8 @@
     <Row textid="SETTING_SOUNDVOL_TT" english="Set the volume of sound effects - set to 0 to mute" german="Stelle die Lautstärke für Klangeffekte ein:  Stummschalten = 0" />
     <Row textid="SETTING_MUSICVOL_TT" english="Set the volume of music - set to 0 to mute" german="Stelle die Lautstärke für Musik ein:  Stummschalten = 0" />
     <Row textid="SETTING_TIPSENABLED_TT" english="Toggle the display of tip messages while playing the game" german="Wahrend des Spiels, makle die Darstellung von Tipp Meldungen " />
+    <Row textid="SETTING_FILTERFOREIGNTREATIES_TT" english="When enabled, ticker messages about treaties formed or broken between other realms are hidden. This cuts down NAP / defence / alliance spam. Treaties that involve your realm are always shown." german="Falls aktiviert, werden Tickermeldungen über Verträge zwischen anderen Reichen ausgeblendet. Das verringert NAP-/Verteidigungs-/Bündnis-Spam. Verträge mit deinem Reich werden weiterhin angezeigt." />
+    <Row textid="SETTING_FILTERFOREIGNBATTLES_TT" english="When enabled, ticker messages about battles between other realms (X attacks Y / X defeats Y) are hidden. Battles that involve your realm are always shown." german="Falls aktiviert, werden Tickermeldungen über Schlachten zwischen anderen Reichen (X greift Y an / X besiegt Y) ausgeblendet. Schlachten mit deinem Reich werden weiterhin angezeigt." />
     <Row textid="SETTING_ALLYBATTLE_TT" english="If enabled, all battles in which an ally participates will be observed" german="Falls aktiviert, werden alle Schlachten beobachtet, an denen ein Verbündeter teilnimmt" />
     <Row textid="SETTING_ENEMYBATTLE_TT" english="If enabled, all battles in which an enemy participates will be observed" german="Falls aktiviert, werden alle Schlachten beobachtet, an denen ein Feind teilnimmt" />
     <Row textid="SETTING_REBELBATTLE_TT" english="If enabled, all battles in which rebels participate will be observed" german="Falls aktiviert, werden alle Schlachten beobachtet, an denen ein Rebell teilnimmt" />

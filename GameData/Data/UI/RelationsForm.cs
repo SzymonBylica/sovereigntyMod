@@ -503,6 +503,10 @@ namespace SovereigntyTK.UI
         ControlList<CategorisedListItem> ResourcesList;
         ControlList<TradeData> TradeList;
         ControlList<WorkingRealm> CovertList;
+        ControlRealmCard SelectedRealmCard;
+        ControlList<WorkingUnit> AuxiliariesList;
+        ControlUnitCard AuxPreviewCard;
+        List<WorkingUnit> AuxPreviewUnits = new List<WorkingUnit>();
 
         bool AlliesClosed;
         bool EnemiesClosed;
@@ -539,6 +543,31 @@ namespace SovereigntyTK.UI
             CovertList = GameForm.GetControlByName<ControlList<WorkingRealm>>("CovertTargetsList");
             CovertList.ManualUpdate = true;
             CovertList.OnListItemUpdated += RealmList_OnListItemUpdated;
+
+            // Bottom-left: realm card + auxiliaries list for the selected FA realm.
+            ControlImage RealmInfoBG = GameForm.GetControlByName<ControlImage>("BGImageRealmInfo");
+            SelectedRealmCard = new ControlRealmCard(GameSystem);
+            RealmInfoBG.AddChild(SelectedRealmCard);
+
+            AuxiliariesList = new ControlList<WorkingUnit>(GameSystem);
+            AuxiliariesList.SetVisibleItems(1);
+            AuxiliariesList.ManualUpdate = true;
+            AuxiliariesList.SelectionEnabled = false;
+            AuxiliariesList.HighlightEnabled = true;
+            AuxiliariesList.OnListItemUpdated += AuxiliariesList_OnListItemUpdated;
+            AuxiliariesList.OnHoverItemChanged += AuxiliariesList_OnHoverItemChanged;
+            RealmInfoBG.AddChild(AuxiliariesList);
+            LayoutRealmInfoPanel();
+
+            // Local unit card: RelationsForm is fullscreen above InfoCardPanel, so HUD hover cards are hidden.
+            // Center of FA screen (between diplomacy/realm-info and trade/covert columns).
+            AuxPreviewCard = new ControlUnitCard(GameSystem);
+            AuxPreviewCard.SetSize(265, 443, UIUnits.Pixel);
+            AuxPreviewCard.SetAnchor(AnchorPoints.Middle);
+            AuxPreviewCard.SetPosition(0, 0, UIUnits.Pixel);
+            AuxPreviewCard.Visible = false;
+            AuxPreviewCard.MouseInputType = MouseInputTypes.None;
+            GameForm.AddChild(AuxPreviewCard);
 
             ResetRealmList();
 
@@ -1337,9 +1366,159 @@ namespace SovereigntyTK.UI
             }
 
             UpdateDiplomacy();
+            UpdateSelectedRealmCard();
             UpdateTrade();
             UpdateAgents();
             UpdateAgentsOverview();
+        }
+
+        private void LayoutRealmInfoPanel(int AuxCount = -1)
+        {
+            ControlImage RealmInfoBG = GameForm.GetControlByName<ControlImage>("BGImageRealmInfo");
+            if (RealmInfoBG == null || SelectedRealmCard == null || AuxiliariesList == null) return;
+
+            // Sprite.Bounds are already screen-scaled — must use PixelScaled (Pixel double-sizes).
+            float BW = RealmInfoBG.Sprite.Bounds.Width;
+            float BH = RealmInfoBG.Sprite.Bounds.Height;
+            if (BW < 10f || BH < 10f) return;
+
+            float CardX = BW * 0.03f;
+            float CardY = BH * 0.12f;
+            // Leave margin inside the ornate border; keep left column under ~48% width.
+            float CardH = BH * 0.78f;
+            float CardW = CardH * (265f / 443f);
+            float MaxCardW = BW * 0.48f;
+            if (CardW > MaxCardW)
+            {
+                CardW = MaxCardW;
+                CardH = CardW * (443f / 265f);
+            }
+            SelectedRealmCard.SetSize(CardW, CardH, UIUnits.PixelScaled);
+            SelectedRealmCard.SetPosition(CardX, CardY, UIUnits.PixelScaled);
+
+            float AuxX = CardX + CardW + BW * 0.03f;
+            float AuxY = BH * 0.16f;
+            float AuxW = BW - AuxX - BW * 0.03f;
+
+            // Size the list to the unit rows only so status text can sit directly under them.
+            int Visible = AuxCount < 0 ? AuxiliariesList.VisibleItems : Math.Max(1, Math.Min(5, AuxCount == 0 ? 1 : AuxCount));
+            AuxiliariesList.SetVisibleItems(Visible);
+            float RowH = BH * 0.105f;
+            float AuxH = Math.Min(BH * 0.55f, RowH * Visible);
+            AuxiliariesList.SetBounds(AuxX, AuxY, AuxW, AuxH, UIUnits.PixelScaled);
+
+            ControlText AuxTitle = GameForm.GetControlByName<ControlText>("AuxiliariesTitle");
+            if (AuxTitle != null)
+            {
+                AuxTitle.SetBounds(AuxX, BH * 0.09f, AuxW, BH * 0.07f, UIUnits.PixelScaled);
+            }
+
+            ControlText AuxStatus = GameForm.GetControlByName<ControlText>("AuxiliariesStatusText");
+            if (AuxStatus != null)
+            {
+                AuxStatus.SetBounds(AuxX, AuxY + AuxH + BH * 0.015f, AuxW, BH * 0.12f, UIUnits.PixelScaled);
+            }
+        }
+
+        private void UpdateSelectedRealmCard()
+        {
+            if (SelectedRealmCard == null || DiplomacyRealm == null) return;
+            SelectedRealmCard.SetRealm(DiplomacyRealm);
+            SelectedRealmCard.UpdateSpells();
+            if (AuxPreviewCard != null) AuxPreviewCard.Visible = false;
+            UpdateAuxiliariesList();
+        }
+
+        private void ClearAuxPreviewUnits()
+        {
+            AuxPreviewUnits.Clear();
+        }
+
+        private void UpdateAuxiliariesList()
+        {
+            if (AuxiliariesList == null || DiplomacyRealm == null) return;
+
+            ClearAuxPreviewUnits();
+            AuxiliariesList.ClearItems();
+
+            List<UnitData> AuxTypes = GameSystem.Data.Units.Values
+                .Where(x => x.Realm == DiplomacyRealm.Name
+                    && x.Cost > 0
+                    && x.Abilities.Contains("Auxiliary"))
+                .OrderBy(x => GameText.CreateLocalised(x.DisplayName).GetActualText(GameSystem))
+                .ToList();
+
+            foreach (UnitData Type in AuxTypes)
+            {
+                WorkingUnit Preview = new WorkingUnit(GameSystem.CurrentGame, -1, Type);
+                Preview.OwnerRealmID = DiplomacyRealm.ID;
+                // OwnerRealm is resolved from OwnerRealmID; bail if lookup fails so hover SetUnit won't NRE.
+                if (Preview.OwnerRealm == null) continue;
+                AuxPreviewUnits.Add(Preview);
+                AuxiliariesList.AddItem(Preview);
+            }
+
+            LayoutRealmInfoPanel(AuxPreviewUnits.Count);
+
+            ControlText Status = GameForm.GetControlByName<ControlText>("AuxiliariesStatusText");
+            if (Status == null) return;
+
+            if (AuxPreviewUnits.Count == 0)
+            {
+                Status.SetTextData(GameText.CreateLocalised("REALMINFO_AUX_NONE"));
+            }
+            else if (DiplomacyRealm == GameSystem.CurrentGame.PlayerRealm)
+            {
+                Status.SetTextData(GameText.CreateLocalised("REALMINFO_AUX_SELF"));
+            }
+            else if (GameSystem.CurrentGame.PlayerRealm.Allies.Contains(DiplomacyRealm))
+            {
+                Status.SetTextData(GameText.CreateLocalised("REALMINFO_AUX_ALLIED"));
+            }
+            else
+            {
+                Status.SetTextData(GameText.CreateLocalised("REALMINFO_AUX_NOT_ALLIED"));
+            }
+        }
+
+        private void AuxiliariesList_OnListItemUpdated(ListItem<WorkingUnit> Item)
+        {
+            float H = Item.Container.Sprite.Bounds.Height;
+            float W = Item.Container.Sprite.Bounds.Width;
+
+            ControlImage UnitImage = new ControlImage(GameSystem);
+            UnitImage.SetBounds(H * 0.05f, H * 0.05f, H * 0.9f, H * 0.9f, UIUnits.PixelScaled);
+            UnitImage.SetImageFile("Data\\Images\\Units\\" + Item.Data.ImageFile + ".jpg");
+            UnitImage.BubbleMouseovers = true;
+            Item.Container.AddChild(UnitImage);
+
+            ControlText NameText = new ControlText(GameSystem);
+            NameText.SetBounds(H * 1.05f, 0, W - H * 1.1f, H, UIUnits.PixelScaled);
+            // Cap font so long names stay readable inside the aux column.
+            int FontPx = (int)Math.Max(11f, Math.Min(15f, H * 0.42f));
+            NameText.SetFontSize(FontPx, UIUnits.PixelScaled);
+            NameText.FontName = "Trebuchet MS";
+            NameText.TextAnchor = AnchorPoints.Left;
+            NameText.Colour = Color.FromArgb(255, 238, 161);
+            NameText.SetTextData(GameText.CreateLocalised(Item.Data.DisplayName));
+            NameText.BubbleMouseovers = true;
+            Item.Container.AddChild(NameText);
+        }
+
+        private void AuxiliariesList_OnHoverItemChanged(UIControl Control)
+        {
+            if (AuxiliariesList == null || AuxPreviewCard == null) return;
+
+            if (AuxiliariesList.HoverItem != null && AuxiliariesList.HoverItem.Data != null)
+            {
+                AuxPreviewCard.SetUnit(AuxiliariesList.HoverItem.Data, null);
+                AuxPreviewCard.Visible = true;
+                AuxPreviewCard.BringToFront();
+            }
+            else
+            {
+                AuxPreviewCard.Visible = false;
+            }
         }
 
         private void SelectRealmInList(WorkingRealm Realm)
@@ -1989,6 +2168,7 @@ namespace SovereigntyTK.UI
         {
             if (GameSystem.UIActionAllowed("RelationsClose") == false) return;
 
+            if (AuxPreviewCard != null) AuxPreviewCard.Visible = false;
             GameForm.Visible = false;
             GameSystem.FireEvent("RelationsFormClosed");
         }

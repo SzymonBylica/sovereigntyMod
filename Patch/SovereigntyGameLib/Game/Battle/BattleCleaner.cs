@@ -25,10 +25,13 @@ namespace SovereigntyTK.Game.Battle
 		{
 			BattleCleanupData battleCleanupData = new BattleCleanupData();
 			battleCleanupData.SetData(Battle);
-			this.Game.GameCore.FireEvent("TickerMessage", new object[]
+			if (ShouldAnnounceBattleTicker(battleCleanupData.Winner.Owner, battleCleanupData.Loser.Owner))
 			{
-				new TickerMessage(GameText.CreateFromLiteral(battleCleanupData.WinnerName + " defeats " + battleCleanupData.LoserName), TickerMessageType.Default, 1)
-			});
+				this.Game.GameCore.FireEvent("TickerMessage", new object[]
+				{
+					new TickerMessage(GameText.CreateFromLiteral(battleCleanupData.WinnerName + " defeats " + battleCleanupData.LoserName), TickerMessageType.Default, 1)
+				});
+			}
 			Battle.DisposeDeadUnits();
 			Battle.RemoveFortification();
 			battleCleanupData.Winner.AwardHeroXP(10);
@@ -57,10 +60,13 @@ namespace SovereigntyTK.Game.Battle
 		{
 			BattleCleanupData battleCleanupData = new BattleCleanupData();
 			battleCleanupData.SetData(Battle);
-			this.Game.GameCore.FireEvent("TickerMessage", new object[]
+			if (ShouldAnnounceBattleTicker(battleCleanupData.Winner.Owner, battleCleanupData.Loser.Owner))
 			{
-				new TickerMessage(GameText.CreateFromLiteral(battleCleanupData.WinnerName + " defeats " + battleCleanupData.LoserName), TickerMessageType.Default, 1)
-			});
+				this.Game.GameCore.FireEvent("TickerMessage", new object[]
+				{
+					new TickerMessage(GameText.CreateFromLiteral(battleCleanupData.WinnerName + " defeats " + battleCleanupData.LoserName), TickerMessageType.Default, 1)
+				});
+			}
 			battleCleanupData.Winner.AwardHeroXP(10);
 			this.AwardHeroBattleWin(battleCleanupData);
 			battleCleanupData.Loser.AwardHeroXP(1);
@@ -361,6 +367,17 @@ namespace SovereigntyTK.Game.Battle
 				return;
 			}
 			Province.OccupierRealm.AIPlayer.RelationsManager.ConsiderLiberation(Province);
+		}
+
+		// When FilterForeignBattleMessages is on, only announce battles that involve the player.
+		private bool ShouldAnnounceBattleTicker(WorkingRealm Realm1, WorkingRealm Realm2)
+		{
+			if (!this.Game.GameCore.Settings.GetBooleanSetting("FilterForeignBattleMessages"))
+			{
+				return true;
+			}
+			WorkingRealm Player = this.Game.PlayerRealm;
+			return Player != null && (Realm1 == Player || Realm2 == Player);
 		}
 
 		private AutoBattleController Battle;

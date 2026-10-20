@@ -256,6 +256,59 @@
     </control>
 
     <control type="container">
+      <name>RealmInfoContainer</name>
+      <height>45%</height>
+      <width>50%</width>
+      <anchor>BottomLeft</anchor>
+
+      <control type="image">
+        <name>BGImageRealmInfo</name>
+        <height>340px</height>
+        <width>560px</width>
+        <anchor>Middle</anchor>
+        <imagefile>Data\Images\Hud\Purchase\unitwindow.png</imagefile>
+
+        <control type="text">
+          <name>RealmInfoTitle</name>
+          <fontname>Trebuchet MS</fontname>
+          <fontcolour>255,238,161</fontcolour>
+          <fontsize>18px</fontsize>
+          <width>560px</width>
+          <height>32px</height>
+          <bold>true</bold>
+          <text>REALMINFO_TITLE</text>
+          <textanchor>Middle</textanchor>
+        </control>
+
+        <control type="text">
+          <name>AuxiliariesTitle</name>
+          <fontname>Trebuchet MS</fontname>
+          <fontcolour>255,238,161</fontcolour>
+          <fontsize>14px</fontsize>
+          <width>250px</width>
+          <height>24px</height>
+          <offsetx>285px</offsetx>
+          <offsety>36px</offsety>
+          <bold>true</bold>
+          <text>REALMINFO_AUX_TITLE</text>
+          <textanchor>Left</textanchor>
+        </control>
+
+        <control type="text">
+          <name>AuxiliariesStatusText</name>
+          <fontname>Trebuchet MS</fontname>
+          <fontcolour>255,238,161</fontcolour>
+          <fontsize>11px</fontsize>
+          <width>250px</width>
+          <height>36px</height>
+          <offsetx>285px</offsetx>
+          <offsety>292px</offsety>
+          <textanchor>TopLeft</textanchor>
+        </control>
+      </control>
+    </control>
+
+    <control type="container">
       <name>AgentsContainer</name>
       <height>45%</height>
       <width>50%</width>

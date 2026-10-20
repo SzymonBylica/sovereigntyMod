@@ -16,19 +16,22 @@ namespace SovereigntyTK.Game.Battle
 		public event AutoBattlePlunderDelegate OnPlunderModRequest;
 		public AutoBattleController(SovereigntyGame Game, BattleStarter PendingBattle)
 		{
-			Game.GameCore.FireEvent("TickerMessage", new object[]
-			{
-				new TickerMessage(GameText.CreateFromLiteral(string.Concat(new string[]
-				{
-					PendingBattle.Attacker.Owner.Name,
-					" attacks ",
-					PendingBattle.Defender.Owner.Name,
-					" at ",
-					PendingBattle.Defender.Node.GetRegion().Name
-				})), TickerMessageType.Default, 1)
-			});
-			this.RNG = new Random();
 			this.Game = Game;
+			if (ShouldAnnounceBattleTicker(PendingBattle.Attacker.Owner, PendingBattle.Defender.Owner))
+			{
+				Game.GameCore.FireEvent("TickerMessage", new object[]
+				{
+					new TickerMessage(GameText.CreateFromLiteral(string.Concat(new string[]
+					{
+						PendingBattle.Attacker.Owner.Name,
+						" attacks ",
+						PendingBattle.Defender.Owner.Name,
+						" at ",
+						PendingBattle.Defender.Node.GetRegion().Name
+					})), TickerMessageType.Default, 1)
+				});
+			}
+			this.RNG = new Random();
 			this.Attacker = PendingBattle.Attacker;
 			this.Defender = PendingBattle.Defender;
 			this.Node = this.Defender.Node;
@@ -2715,6 +2718,17 @@ namespace SovereigntyTK.Game.Battle
 		public bool RealmPresent(string RealmName)
 		{
 			return this.Attacker.Owner.Name == RealmName || this.Defender.Owner.Name == RealmName;
+		}
+
+		// When FilterForeignBattleMessages is on, only announce battles that involve the player.
+		private bool ShouldAnnounceBattleTicker(WorkingRealm Realm1, WorkingRealm Realm2)
+		{
+			if (!this.Game.GameCore.Settings.GetBooleanSetting("FilterForeignBattleMessages"))
+			{
+				return true;
+			}
+			WorkingRealm Player = this.Game.PlayerRealm;
+			return Player != null && (Realm1 == Player || Realm2 == Player);
 		}
 
 		private SovereigntyGame Game;
