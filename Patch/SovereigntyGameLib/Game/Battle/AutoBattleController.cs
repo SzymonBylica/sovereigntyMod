@@ -21,14 +21,7 @@ namespace SovereigntyTK.Game.Battle
 			{
 				Game.GameCore.FireEvent("TickerMessage", new object[]
 				{
-					new TickerMessage(GameText.CreateFromLiteral(string.Concat(new string[]
-					{
-						PendingBattle.Attacker.Owner.Name,
-						" attacks ",
-						PendingBattle.Defender.Owner.Name,
-						" at ",
-						PendingBattle.Defender.Node.GetRegion().Name
-					})), TickerMessageType.Default, 1)
+					BuildBattleAttackTicker(PendingBattle.Attacker.Owner, PendingBattle.Defender.Owner, PendingBattle.Defender.Node.GetRegion())
 				});
 			}
 			this.RNG = new Random();
@@ -2729,6 +2722,21 @@ namespace SovereigntyTK.Game.Battle
 			}
 			WorkingRealm Player = this.Game.PlayerRealm;
 			return Player != null && (Realm1 == Player || Realm2 == Player);
+		}
+
+		// Named/localised ticker text (like NEW_TREATY) so filters work in any language.
+		private static TickerMessage BuildBattleAttackTicker(WorkingRealm Attacker, WorkingRealm Defender, GameRegion Region)
+		{
+			GameText Text = GameText.CreateLocalised("BATTLE_ATTACKED", new object[0]);
+			Text.AddChildText(GameText.CreateLocalised(Attacker.DisplayName, new object[0]));
+			Text.AddChildText(GameText.CreateLocalised(Defender.DisplayName, new object[0]));
+			string RegionKey = "";
+			if (Region != null)
+			{
+				RegionKey = !string.IsNullOrEmpty(Region.DisplayName) ? Region.DisplayName : Region.Name;
+			}
+			Text.AddChildText(GameText.CreateLocalised(RegionKey, new object[0]));
+			return new TickerMessage(Text, TickerMessageType.Military, 1);
 		}
 
 		private SovereigntyGame Game;

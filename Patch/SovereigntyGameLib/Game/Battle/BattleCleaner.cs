@@ -29,7 +29,7 @@ namespace SovereigntyTK.Game.Battle
 			{
 				this.Game.GameCore.FireEvent("TickerMessage", new object[]
 				{
-					new TickerMessage(GameText.CreateFromLiteral(battleCleanupData.WinnerName + " defeats " + battleCleanupData.LoserName), TickerMessageType.Default, 1)
+					BuildBattleDefeatTicker(battleCleanupData.Winner.Owner, battleCleanupData.Loser.Owner)
 				});
 			}
 			Battle.DisposeDeadUnits();
@@ -64,7 +64,7 @@ namespace SovereigntyTK.Game.Battle
 			{
 				this.Game.GameCore.FireEvent("TickerMessage", new object[]
 				{
-					new TickerMessage(GameText.CreateFromLiteral(battleCleanupData.WinnerName + " defeats " + battleCleanupData.LoserName), TickerMessageType.Default, 1)
+					BuildBattleDefeatTicker(battleCleanupData.Winner.Owner, battleCleanupData.Loser.Owner)
 				});
 			}
 			battleCleanupData.Winner.AwardHeroXP(10);
@@ -378,6 +378,15 @@ namespace SovereigntyTK.Game.Battle
 			}
 			WorkingRealm Player = this.Game.PlayerRealm;
 			return Player != null && (Realm1 == Player || Realm2 == Player);
+		}
+
+		// Named/localised ticker text (like NEW_TREATY) so filters work in any language.
+		private static TickerMessage BuildBattleDefeatTicker(WorkingRealm Winner, WorkingRealm Loser)
+		{
+			GameText Text = GameText.CreateLocalised("BATTLE_DEFEATED", new object[0]);
+			Text.AddChildText(GameText.CreateLocalised(Winner.DisplayName, new object[0]));
+			Text.AddChildText(GameText.CreateLocalised(Loser.DisplayName, new object[0]));
+			return new TickerMessage(Text, TickerMessageType.Military, 1);
 		}
 
 		private AutoBattleController Battle;

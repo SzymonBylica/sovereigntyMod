@@ -546,28 +546,31 @@ namespace SovereigntyTK.UI
 
             // Bottom-left: realm card + auxiliaries list for the selected FA realm.
             ControlImage RealmInfoBG = GameForm.GetControlByName<ControlImage>("BGImageRealmInfo");
-            SelectedRealmCard = new ControlRealmCard(GameSystem);
-            RealmInfoBG.AddChild(SelectedRealmCard);
+            if (RealmInfoBG != null)
+            {
+                SelectedRealmCard = new ControlRealmCard(GameSystem);
+                RealmInfoBG.AddChild(SelectedRealmCard);
 
-            AuxiliariesList = new ControlList<WorkingUnit>(GameSystem);
-            AuxiliariesList.SetVisibleItems(1);
-            AuxiliariesList.ManualUpdate = true;
-            AuxiliariesList.SelectionEnabled = false;
-            AuxiliariesList.HighlightEnabled = true;
-            AuxiliariesList.OnListItemUpdated += AuxiliariesList_OnListItemUpdated;
-            AuxiliariesList.OnHoverItemChanged += AuxiliariesList_OnHoverItemChanged;
-            RealmInfoBG.AddChild(AuxiliariesList);
-            LayoutRealmInfoPanel();
+                AuxiliariesList = new ControlList<WorkingUnit>(GameSystem);
+                AuxiliariesList.SetVisibleItems(1);
+                AuxiliariesList.ManualUpdate = true;
+                AuxiliariesList.SelectionEnabled = false;
+                AuxiliariesList.HighlightEnabled = true;
+                AuxiliariesList.OnListItemUpdated += AuxiliariesList_OnListItemUpdated;
+                AuxiliariesList.OnHoverItemChanged += AuxiliariesList_OnHoverItemChanged;
+                RealmInfoBG.AddChild(AuxiliariesList);
+                LayoutRealmInfoPanel();
 
-            // Local unit card: RelationsForm is fullscreen above InfoCardPanel, so HUD hover cards are hidden.
-            // Center of FA screen (between diplomacy/realm-info and trade/covert columns).
-            AuxPreviewCard = new ControlUnitCard(GameSystem);
-            AuxPreviewCard.SetSize(265, 443, UIUnits.Pixel);
-            AuxPreviewCard.SetAnchor(AnchorPoints.Middle);
-            AuxPreviewCard.SetPosition(0, 0, UIUnits.Pixel);
-            AuxPreviewCard.Visible = false;
-            AuxPreviewCard.MouseInputType = MouseInputTypes.None;
-            GameForm.AddChild(AuxPreviewCard);
+                // Local unit card: RelationsForm is fullscreen above InfoCardPanel, so HUD hover cards are hidden.
+                // Center of FA screen (between diplomacy/realm-info and trade/covert columns).
+                AuxPreviewCard = new ControlUnitCard(GameSystem);
+                AuxPreviewCard.SetSize(265, 443, UIUnits.Pixel);
+                AuxPreviewCard.SetAnchor(AnchorPoints.Middle);
+                AuxPreviewCard.SetPosition(0, 0, UIUnits.Pixel);
+                AuxPreviewCard.Visible = false;
+                AuxPreviewCard.MouseInputType = MouseInputTypes.None;
+                GameForm.AddChild(AuxPreviewCard);
+            }
 
             ResetRealmList();
 

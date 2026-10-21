@@ -127,32 +127,36 @@ namespace SovereigntyTK.UI
         {
             if (Text == null) return false;
 
-            if (Text.TextName == "NEW_TREATY" || Text.TextName == "END_TREATY") return true;
-            if (ContainsBattlePhrase(Text.LiteralText)) return true;
+            if (IsTreatyTextName(Text.TextName) || IsBattleTextName(Text.TextName)) return true;
 
+            // FORMAT_TICKER wrappers / older literal entries: match resolved text.
             string Resolved = Text.GetActualText(GameSystem);
-            if (ContainsBattlePhrase(Resolved)) return true;
-            return ContainsTreatyPhrase(Resolved);
+            return ContainsTreatyPhrase(Resolved) || ContainsBattlePhrase(Resolved);
         }
 
-        private bool IsBattleText(GameText Text)
+        private static bool IsTreatyTextName(string Name)
         {
-            if (Text == null) return false;
-            if (ContainsBattlePhrase(Text.LiteralText)) return true;
-            return ContainsBattlePhrase(Text.GetActualText(GameSystem));
+            return Name == "NEW_TREATY" || Name == "END_TREATY";
+        }
+
+        private static bool IsBattleTextName(string Name)
+        {
+            return Name == "BATTLE_ATTACKED" || Name == "BATTLE_DEFEATED";
         }
 
         private static bool ContainsBattlePhrase(string Text)
         {
             if (string.IsNullOrEmpty(Text)) return false;
+            // Fallback for pre-localisation literal tickers still in the log.
             return Text.IndexOf(" attacks ", StringComparison.Ordinal) >= 0
-                || Text.IndexOf(" defeats ", StringComparison.Ordinal) >= 0;
+                || Text.IndexOf(" defeats ", StringComparison.Ordinal) >= 0
+                || Text.IndexOf(" greift ", StringComparison.Ordinal) >= 0
+                || Text.IndexOf(" besiegt ", StringComparison.Ordinal) >= 0;
         }
 
         private static bool ContainsTreatyPhrase(string Text)
         {
             if (string.IsNullOrEmpty(Text)) return false;
-            // NEW_TREATY / END_TREATY resolved English (and German "Abkommen").
             return Text.IndexOf("Treaty signed between", StringComparison.OrdinalIgnoreCase) >= 0
                 || Text.IndexOf("Treaty ended between", StringComparison.OrdinalIgnoreCase) >= 0
                 || Text.IndexOf("Abkommen zwischen", StringComparison.OrdinalIgnoreCase) >= 0;
@@ -162,7 +166,7 @@ namespace SovereigntyTK.UI
         {
             if (Msg.MessageType != TickerMessageType.Diplomacy) return false;
             if (Msg.MessageText == null) return false;
-            if (Msg.MessageText.TextName != "NEW_TREATY" && Msg.MessageText.TextName != "END_TREATY") return false;
+            if (!IsTreatyTextName(Msg.MessageText.TextName)) return false;
 
             WorkingRealm Player = GameSystem.CurrentGame.PlayerRealm;
             if (Player == null) return true;
@@ -174,19 +178,17 @@ namespace SovereigntyTK.UI
 
         private bool IsForeignBattleMessage(TickerMessage Msg)
         {
+            // Same pattern as treaties: identify by TextName, then hide if player display name absent.
             if (Msg.MessageText == null) return false;
-            if (!IsBattleText(Msg.MessageText)) return false;
+            if (!IsBattleTextName(Msg.MessageText.TextName)) return false;
 
             WorkingRealm Player = GameSystem.CurrentGame.PlayerRealm;
             if (Player == null) return true;
 
-            string FullText = Msg.MessageText.GetActualText(GameSystem);
-            if (FullText.IndexOf(Player.Name, System.StringComparison.OrdinalIgnoreCase) >= 0) return false;
-
             string PlayerDisplay = GameText.CreateLocalised(Player.DisplayName).GetActualText(GameSystem);
-            if (!string.IsNullOrEmpty(PlayerDisplay) && FullText.IndexOf(PlayerDisplay, System.StringComparison.OrdinalIgnoreCase) >= 0) return false;
-
-            return true;
+            string FullText = Msg.MessageText.GetActualText(GameSystem);
+            return string.IsNullOrEmpty(PlayerDisplay)
+                || FullText.IndexOf(PlayerDisplay, System.StringComparison.OrdinalIgnoreCase) < 0;
         }
 
         public override void Dispose()

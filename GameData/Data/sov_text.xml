@@ -1754,6 +1754,8 @@
     <Row textid="TRADEREJECTTEXT" english="Reject Trade" german="Handel ablehnen" />
     <Row textid="END_TREATY" english="[text3] Treaty ended between [text1] and [text2]" german="[text3] Abkommen zwischen [text1] und [text2] beendet" />
     <Row textid="NEW_TREATY" english="[text3] Treaty signed between [text1] and [text2]" german="[text3] Abkommen zwischen [text2] und [text1] unterzeichnet" />
+    <Row textid="BATTLE_ATTACKED" english="[text1] attacks [text2] at [text3]" german="[text1] greift [text2] in [text3] an" />
+    <Row textid="BATTLE_DEFEATED" english="[text1] defeats [text2]" german="[text1] besiegt [text2]" />
     <Row textid="WAR_STARTED" english="[text1] and [text2] are at war" german="[text1] und [text2] führen Krieg" />
     <Row textid="WAR_ENDED" english="[text1] and [text2] are no longer at war" german="[text1] und [text2] führen nicht weiter Krieg" />
     <Row textid="TRADEOFFER_TEXT" english="You have received the following offer of trade from [text1]. Review the trade below and decide if you want to accept it, reject it or make a counter offer." german="Du hast  von [text1] nachstehendes Angebot erhalten. Begutachte den Handel und entscheide, ob du ihn annehmen, ablehnen, oder ein Gegenangebot machen willst. " />

@@ -250,28 +250,22 @@ namespace SovereigntyTK.Game
 			TickerTexts.Add(gameText);
 		}
 
-		// Battle tickers use realm .Name ("X attacks Y" / "X defeats Y").
+		// Same pattern as treaties: identify by TextName (BATTLE_ATTACKED / BATTLE_DEFEATED).
 		private bool IsForeignBattleTickerMessage(TickerMessage tickerMessage)
 		{
 			if (tickerMessage.MessageText == null || PlayerRealm == null)
 			{
 				return false;
 			}
-			string fullText = tickerMessage.MessageText.GetActualText(GameCore);
-			if (fullText.IndexOf(" attacks ", StringComparison.Ordinal) < 0 && fullText.IndexOf(" defeats ", StringComparison.Ordinal) < 0)
-			{
-				return false;
-			}
-			if (fullText.IndexOf(PlayerRealm.Name, StringComparison.OrdinalIgnoreCase) >= 0)
+			string name = tickerMessage.MessageText.TextName;
+			if (name != "BATTLE_ATTACKED" && name != "BATTLE_DEFEATED")
 			{
 				return false;
 			}
 			string playerDisplay = GameText.CreateLocalised(PlayerRealm.DisplayName, new object[0]).GetActualText(GameCore);
-			if (!string.IsNullOrEmpty(playerDisplay) && fullText.IndexOf(playerDisplay, StringComparison.OrdinalIgnoreCase) >= 0)
-			{
-				return false;
-			}
-			return true;
+			string fullText = tickerMessage.MessageText.GetActualText(GameCore);
+			return string.IsNullOrEmpty(playerDisplay)
+				|| fullText.IndexOf(playerDisplay, StringComparison.OrdinalIgnoreCase) < 0;
 		}
 
 		private void HandleProvinceOccupierChanged(string EventName, params object[] Args)
