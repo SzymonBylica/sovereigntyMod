@@ -507,6 +507,8 @@ namespace SovereigntyTK.UI
         ControlList<WorkingUnit> AuxiliariesList;
         ControlUnitCard AuxPreviewCard;
         List<WorkingUnit> AuxPreviewUnits = new List<WorkingUnit>();
+        // Click-to-pin (same idea as InfoCardPanel / tactical SelectedCard): stays until click again or realm change.
+        WorkingUnit AuxPinnedUnit;
 
         bool AlliesClosed;
         bool EnemiesClosed;
@@ -554,10 +556,11 @@ namespace SovereigntyTK.UI
                 AuxiliariesList = new ControlList<WorkingUnit>(GameSystem);
                 AuxiliariesList.SetVisibleItems(1);
                 AuxiliariesList.ManualUpdate = true;
-                AuxiliariesList.SelectionEnabled = false;
+                AuxiliariesList.SelectionEnabled = true;
                 AuxiliariesList.HighlightEnabled = true;
                 AuxiliariesList.OnListItemUpdated += AuxiliariesList_OnListItemUpdated;
                 AuxiliariesList.OnHoverItemChanged += AuxiliariesList_OnHoverItemChanged;
+                AuxiliariesList.OnItemClicked += AuxiliariesList_OnItemClicked;
                 RealmInfoBG.AddChild(AuxiliariesList);
                 LayoutRealmInfoPanel();
 
@@ -569,6 +572,7 @@ namespace SovereigntyTK.UI
                 AuxPreviewCard.SetPosition(0, 0, UIUnits.Pixel);
                 AuxPreviewCard.Visible = false;
                 AuxPreviewCard.MouseInputType = MouseInputTypes.None;
+                AuxPreviewCard.OnMouseEnter += AuxPreviewCard_OnMouseEnter;
                 GameForm.AddChild(AuxPreviewCard);
             }
 
@@ -1417,9 +1421,24 @@ namespace SovereigntyTK.UI
             }
 
             ControlText AuxStatus = GameForm.GetControlByName<ControlText>("AuxiliariesStatusText");
+            float StatusY = AuxY + AuxH + BH * 0.015f;
             if (AuxStatus != null)
             {
-                AuxStatus.SetBounds(AuxX, AuxY + AuxH + BH * 0.015f, AuxW, BH * 0.12f, UIUnits.PixelScaled);
+                AuxStatus.SetBounds(AuxX, StatusY, AuxW, BH * 0.10f, UIUnits.PixelScaled);
+            }
+
+            float RelY = StatusY + BH * 0.11f;
+            float RelLineH = BH * 0.055f;
+            float RelGap = BH * 0.035f;
+            ControlText RelOurs = GameForm.GetControlByName<ControlText>("RealmRelationsOursText");
+            if (RelOurs != null)
+            {
+                RelOurs.SetBounds(AuxX, RelY, AuxW, RelLineH, UIUnits.PixelScaled);
+            }
+            ControlText RelTheirs = GameForm.GetControlByName<ControlText>("RealmRelationsTheirsText");
+            if (RelTheirs != null)
+            {
+                RelTheirs.SetBounds(AuxX, RelY + RelLineH + RelGap, AuxW, RelLineH, UIUnits.PixelScaled);
             }
         }
 
@@ -1428,8 +1447,9 @@ namespace SovereigntyTK.UI
             if (SelectedRealmCard == null || DiplomacyRealm == null) return;
             SelectedRealmCard.SetRealm(DiplomacyRealm);
             SelectedRealmCard.UpdateSpells();
-            if (AuxPreviewCard != null) AuxPreviewCard.Visible = false;
+            ClearAuxPin();
             UpdateAuxiliariesList();
+            UpdateRealmRelationsText();
         }
 
         private void ClearAuxPreviewUnits()
@@ -1484,6 +1504,48 @@ namespace SovereigntyTK.UI
             }
         }
 
+        private void UpdateRealmRelationsText()
+        {
+            ControlText RelOurs = GameForm.GetControlByName<ControlText>("RealmRelationsOursText");
+            ControlText RelTheirs = GameForm.GetControlByName<ControlText>("RealmRelationsTheirsText");
+            if (RelOurs == null && RelTheirs == null) return;
+
+            WorkingRealm Player = GameSystem.CurrentGame.PlayerRealm;
+            bool Hide = DiplomacyRealm == null || Player == null || DiplomacyRealm == Player;
+            if (Hide)
+            {
+                if (RelOurs != null)
+                {
+                    RelOurs.Visible = false;
+                    RelOurs.SetTooltip((List<GameText>)null);
+                }
+                if (RelTheirs != null)
+                {
+                    RelTheirs.Visible = false;
+                    RelTheirs.SetTooltip((List<GameText>)null);
+                }
+                return;
+            }
+
+            float Ours = Player.DiplomacyManager.GetDisposition(DiplomacyRealm);
+            float Theirs = DiplomacyRealm.DiplomacyManager.GetDisposition(Player);
+
+            if (RelOurs != null)
+            {
+                RelOurs.Visible = true;
+                RelOurs.MouseInputType = MouseInputTypes.Forced;
+                RelOurs.SetTextData(GameText.CreateLocalised("REALMINFO_RELATIONS_OURS", Ours));
+                RelOurs.SetTooltip(Player.DiplomacyManager.GetTooltipList(DiplomacyRealm));
+            }
+            if (RelTheirs != null)
+            {
+                RelTheirs.Visible = true;
+                RelTheirs.MouseInputType = MouseInputTypes.Forced;
+                RelTheirs.SetTextData(GameText.CreateLocalised("REALMINFO_RELATIONS_THEIRS", Theirs));
+                RelTheirs.SetTooltip(DiplomacyRealm.DiplomacyManager.GetTooltipList(Player));
+            }
+        }
+
         private void AuxiliariesList_OnListItemUpdated(ListItem<WorkingUnit> Item)
         {
             float H = Item.Container.Sprite.Bounds.Height;
@@ -1510,11 +1572,59 @@ namespace SovereigntyTK.UI
 
         private void AuxiliariesList_OnHoverItemChanged(UIControl Control)
         {
+            RefreshAuxPreviewCard();
+        }
+
+        private void AuxiliariesList_OnItemClicked(UIControl Control)
+        {
+            if (AuxiliariesList == null || AuxiliariesList.ClickedItem == null || AuxiliariesList.ClickedItem.Data == null) return;
+
+            WorkingUnit Clicked = AuxiliariesList.ClickedItem.Data;
+            // Toggle pin on the same unit; clicking another unit re-pins.
+            if (AuxPinnedUnit == Clicked) ClearAuxPin();
+            else PinAuxUnit(Clicked);
+
+            RefreshAuxPreviewCard();
+        }
+
+        private void AuxPreviewCard_OnMouseEnter(UIControl Control)
+        {
+            // Keep pinned card up while inspecting tooltips on it (InfoCardPanel does the same).
+            if (AuxPinnedUnit != null) RefreshAuxPreviewCard();
+        }
+
+        private void PinAuxUnit(WorkingUnit Unit)
+        {
+            AuxPinnedUnit = Unit;
+            if (AuxPreviewCard != null)
+            {
+                // Allow hovering stats/tooltips on the pinned card.
+                AuxPreviewCard.MouseInputType = MouseInputTypes.Forced;
+            }
+        }
+
+        private void ClearAuxPin()
+        {
+            AuxPinnedUnit = null;
+            if (AuxPreviewCard != null)
+            {
+                AuxPreviewCard.MouseInputType = MouseInputTypes.None;
+                AuxPreviewCard.Visible = false;
+            }
+        }
+
+        private void RefreshAuxPreviewCard()
+        {
             if (AuxiliariesList == null || AuxPreviewCard == null) return;
 
-            if (AuxiliariesList.HoverItem != null && AuxiliariesList.HoverItem.Data != null)
+            // Pinned card wins over hover, matching InfoCardPanel's pinned-vs-mouseover priority.
+            WorkingUnit Show = AuxPinnedUnit;
+            if (Show == null && AuxiliariesList.HoverItem != null)
+                Show = AuxiliariesList.HoverItem.Data;
+
+            if (Show != null)
             {
-                AuxPreviewCard.SetUnit(AuxiliariesList.HoverItem.Data, null);
+                AuxPreviewCard.SetUnit(Show, null);
                 AuxPreviewCard.Visible = true;
                 AuxPreviewCard.BringToFront();
             }
@@ -2171,7 +2281,7 @@ namespace SovereigntyTK.UI
         {
             if (GameSystem.UIActionAllowed("RelationsClose") == false) return;
 
-            if (AuxPreviewCard != null) AuxPreviewCard.Visible = false;
+            ClearAuxPin();
             GameForm.Visible = false;
             GameSystem.FireEvent("RelationsFormClosed");
         }

@@ -4669,6 +4669,8 @@
     <Row textid="REALMINFO_AUX_ALLIED" english="Recruitable while allied" german="Rekrutierbar während des Bündnisses" />
     <Row textid="REALMINFO_AUX_NOT_ALLIED" english="Available if you ally with this realm" german="Verfügbar, falls du dich mit diesem Reich verbündest" />
     <Row textid="REALMINFO_AUX_SELF" english="These units can be lent to allies" german="Diese Einheiten können an Verbündete verliehen werden" />
+    <Row textid="REALMINFO_RELATIONS_OURS" english="Your opinion of them: {0:0}" german="Deine Meinung über sie: {0:0}" />
+    <Row textid="REALMINFO_RELATIONS_THEIRS" english="Their opinion of you: {0:0}" german="Ihre Meinung über dich: {0:0}" />
     <Row textid="TT_REALMHERO" english="Number of Heroes fielded by this realm." german="Die von diesem Reich aufgestellte  Zahl der Helden" />
     <Row textid="TT_REALMAGENT" english="Number of Agents available to this realm (Available/Total)" german="Die diesem Reich verfügbare Zahl von Agenten (Verfügbar/Total)" />
     <Row textid="TT_REALMALLIES" english="Number of Allies this realm has (Current/Maximum)" german="Zahl der diesem Reich Verbündeten (Gegenwärtig/Maximal)" />

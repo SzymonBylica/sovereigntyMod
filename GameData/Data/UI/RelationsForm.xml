@@ -305,6 +305,32 @@
           <offsety>292px</offsety>
           <textanchor>TopLeft</textanchor>
         </control>
+
+        <control type="text">
+          <name>RealmRelationsOursText</name>
+          <fontname>Trebuchet MS</fontname>
+          <fontcolour>255,238,161</fontcolour>
+          <fontsize>12px</fontsize>
+          <width>250px</width>
+          <height>20px</height>
+          <offsetx>285px</offsetx>
+          <offsety>250px</offsety>
+          <textanchor>Left</textanchor>
+          <forcemouse>true</forcemouse>
+        </control>
+
+        <control type="text">
+          <name>RealmRelationsTheirsText</name>
+          <fontname>Trebuchet MS</fontname>
+          <fontcolour>255,238,161</fontcolour>
+          <fontsize>12px</fontsize>
+          <width>250px</width>
+          <height>20px</height>
+          <offsetx>285px</offsetx>
+          <offsety>278px</offsety>
+          <textanchor>Left</textanchor>
+          <forcemouse>true</forcemouse>
+        </control>
       </control>
     </control>
 
