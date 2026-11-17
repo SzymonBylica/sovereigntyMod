@@ -1731,6 +1731,21 @@
     <Row textid="TT_COVERT2" english="Emissary: Improve this realm's opinion towards…" german="Verbessere den Ruf gegenüber …" />
     <Row textid="TT_COVERT3" english="Provocateur: Damage this realm's opinion towards…" german="Verschlechtere den Ruf von .." />
     <Row textid="TT_COVERT4" english="Spy: Scout their military, allowing us to see their units." german="Bespitzle ihr Militär, damit wir ihre Einheiten sehen können" />
+    <Row textid="COVERT_ACT1_NAME" english="Diplomat" german="Diplomat" />
+    <Row textid="COVERT_ACT1_DESC" english="Improve their opinion of us" german="Verbessert ihre Meinung über uns" />
+    <Row textid="COVERT_ACT2_NAME" english="Emissary" german="Gesandter" />
+    <Row textid="COVERT_ACT2_DESC" english="Make them like another realm" german="Verbessert ihr Bild eines Reiches" />
+    <Row textid="COVERT_ACT3_NAME" english="Provocateur" german="Provokateur" />
+    <Row textid="COVERT_ACT3_DESC" english="Turn them against a realm" german="Hetzt sie gegen ein Reich auf" />
+    <Row textid="COVERT_ACT4_NAME" english="Spy" german="Spion" />
+    <Row textid="COVERT_ACT4_DESC" english="Reveal their armies" german="Enthüllt ihre Armeen" />
+    <Row textid="COVERT_ACT5_NAME" english="Incite Uprising" german="Aufstand anzetteln" />
+    <Row textid="COVERT_ACT5_DESC" english="Stir revolt in their lands" german="Schürt Unruhen in ihren Landen" />
+    <Row textid="COVERT_ACT_BUSY" english="Already working here" german="Ist hier bereits tätig" />
+    <Row textid="COVERT_NOFREE" english="No free Agents" german="Keine freien Agenten" />
+    <Row textid="TT_AGENT_RECALL" english="Recall Agent\nAbandon the current mission and travel home.\nReturn journey: {0} turns. The Agent is unavailable until he returns." german="Agenten zurückrufen\nBricht den aktuellen Auftrag ab und reist heim.\nRückreise: {0} Runden. Bis zur Rückkehr steht der Agent nicht zur Verfügung." />
+    <Row textid="TT_AGENT_RECALL_ONE" english="Recall Agent\nAbandon the current mission and travel home.\nReturn journey: 1 turn. The Agent is unavailable until he returns." german="Agenten zurückrufen\nBricht den aktuellen Auftrag ab und reist heim.\nRückreise: 1 Runde. Bis zur Rückkehr steht der Agent nicht zur Verfügung." />
+    <Row textid="TT_AGENT_RECALL_NOW" english="Recall Agent\nThe Agent has not left yet, so he is available again immediately." german="Agenten zurückrufen\nDer Agent ist noch nicht aufgebrochen und steht sofort wieder zur Verfügung." />
     <Row textid="SPY_DAMAGEFOREIGN_SHORT" english="Damaging Relations" german="Beziehungen verschlechtern" />
     <Row textid="SPY_IMPROVEFOREIGN_SHORT" english="Improving Relations" german="Beziehungen verbessern" />
     <Row textid="SPY_IMPROVE_SHORT" english="Improving Relations" german="Beziehungen verbessern" />

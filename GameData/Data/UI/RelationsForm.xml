@@ -432,6 +432,16 @@
           <imagefile>Data\Images\Hud\bg.png</imagefile>
         </control>
 
+        <control type="image">
+          <name>CovertNewBG</name>
+          <width>230px</width>
+          <height>286px</height>
+          <offsetx>15px</offsetx>
+          <offsety>34px</offsety>
+          <visible>false</visible>
+          <imagefile>Data\Images\Hud\bg.png</imagefile>
+        </control>
+
       </control>
     </control>
   </control>
@@ -637,15 +647,38 @@
 
   <control type="button">
     <name>CloseButton</name>
-    <width>38px</width>
-    <height>38px</height>
-    <imgnormal>Data\Images\HUD\Purchase\close_normal.png</imgnormal>
-    <imghigh>Data\Images\HUD\Purchase\close_mouseover.png</imghigh>
-    <imgpress>Data\Images\HUD\Purchase\close_pressed.png</imgpress>
+    <width>120px</width>
+    <height>42px</height>
+    <imgnormal>Data\Images\HUD\MainHUDNew\basicbutton_normal.png</imgnormal>
+    <imghigh>Data\Images\HUD\MainHUDNew\basicbutton_mouseover.png</imghigh>
+    <imgpress>Data\Images\HUD\MainHUDNew\basicbutton_pressed.png</imgpress>
     <onclick>CloseButtonClick</onclick>
-    <tooltip>TT_CLOSEDIPLOMACY</tooltip>
     <anchor>BottomMiddle</anchor>
     <offsety>5px</offsety>
+
+    <control type="image">
+      <name>CloseButtonIcon</name>
+      <width>28px</width>
+      <height>28px</height>
+      <offsetx>10px</offsetx>
+      <offsety>6px</offsety>
+      <anchor>TopLeft</anchor>
+      <ignoremouse>true</ignoremouse>
+      <imagefile>Data\Images\HUD\Purchase\close_normal.png</imagefile>
+    </control>
+
+    <control type="text">
+      <name>CloseButtonText</name>
+      <fontname>Trebuchet MS</fontname>
+      <fontcolour>0,0,0</fontcolour>
+      <fontsize>14px</fontsize>
+      <width>120px</width>
+      <height>38px</height>
+      <anchor>TopLeft</anchor>
+      <bold>true</bold>
+      <text>CLOSETEXT</text>
+      <textanchor>Middle</textanchor>
+    </control>
   </control>
  
 </form>

@@ -95,6 +95,8 @@ Interface
 
 17. Battle map: enemy range preview and a more visible zone-of-control marker.
 
+18. Foreign Affairs: covert actions are now full-size buttons with a name and a short description. Actions you cannot use right now (no free Agent, Diplomat already in place) are greyed out instead of hidden, and your agents in that realm are listed next to them. Clicking an agent portrait in the top bar opens the realm they are working in, and the home flag and portraits light up on hover.
+
 Notes
 
 1. Saves may break after GameData province/map changes. Prefer starting a new campaign after such updates.
